@@ -1,4 +1,4 @@
-package loader
+package postcarder
 
 import (
 	"fmt"
@@ -7,10 +7,11 @@ import (
 	"path"
 	"strings"
 
-	"github.com/jphastings/postcarder/pkg/postcards"
+	"github.com/jphastings/postcarder/internal/compile"
+	"gopkg.in/yaml.v3"
 )
 
-func QuickLoad(dir, prefix string) (*postcards.Postcard, error) {
+func CompileFiles(dir, prefix string) (*Postcard, error) {
 	meta, err := tryLoad(dir, prefix, "meta", "yml", "yaml")
 	if err != nil {
 		return nil, fmt.Errorf("couldn't load metadata: %w", err)
@@ -24,7 +25,33 @@ func QuickLoad(dir, prefix string) (*postcards.Postcard, error) {
 		return nil, fmt.Errorf("couldn't load postcard back: %w", err)
 	}
 
-	return Load(front, back, meta)
+	return Compile(front, back, meta)
+}
+
+func Compile(frontReader, backReader, metaReader io.Reader) (*Postcard, error) {
+	var meta PostcardMetadata
+	if err := yaml.NewDecoder(metaReader).Decode(&meta); err != nil {
+		return nil, err
+	}
+
+	frontImg, err := compile.ReaderToImage(frontReader)
+	if err != nil {
+		return nil, err
+	}
+	backImg, err := compile.ReaderToImage(backReader)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := compile.ValidateDimensions(frontImg, backImg); err != nil {
+		return nil, err
+	}
+
+	return &Postcard{
+		Front: frontImg,
+		Back:  backImg,
+		Meta:  meta,
+	}, nil
 }
 
 func tryLoad(dir, prefix, suffix string, extensions ...string) (io.Reader, error) {

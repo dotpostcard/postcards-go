@@ -1,19 +1,13 @@
-package postcards
+package postcarder
 
 import (
 	"encoding/json"
-	"fmt"
-	"image"
 
 	"cloud.google.com/go/civil"
 )
 
 func (pts Polygon) MarshalJSON() ([]byte, error) {
-	points := make([][]int, len(pts))
-	for i, pt := range pts {
-		points[i] = []int{pt.X, pt.Y}
-	}
-	return json.Marshal(points)
+	return json.Marshal(pts.toInts())
 }
 
 func (pts *Polygon) UnmarshalJSON(b []byte) error {
@@ -22,15 +16,7 @@ func (pts *Polygon) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	for _, pt := range points {
-		if len(pt) != 2 {
-			return fmt.Errorf("%dD point given instead of 2D", len(pt))
-		}
-
-		*pts = append(*pts, image.Point{X: pt[0], Y: pt[1]})
-	}
-
-	return nil
+	return pts.fromInts(points)
 }
 
 func (d Date) MarshalJSON() ([]byte, error) {
@@ -62,12 +48,6 @@ func (ll *LatLong) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &floats); err != nil {
 		return err
 	}
-	if len(floats) != 2 {
-		return fmt.Errorf("expected a latitude and a longitude float, but %d floats given", len(floats))
-	}
 
-	ll.Latitude = floats[0]
-	ll.Longitude = floats[1]
-
-	return nil
+	return ll.fromFloats(floats...)
 }

@@ -1,4 +1,4 @@
-package loader
+package compile
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ const (
 	maxRatioDiff = 0.01
 )
 
-func readerToImage(r io.Reader) (*bimg.Image, error) {
+func ReaderToImage(r io.Reader) (*bimg.Image, error) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(r)
 	if err != nil {
@@ -25,7 +25,7 @@ func readerToImage(r io.Reader) (*bimg.Image, error) {
 	return bimg.NewImage(buf.Bytes()), nil
 }
 
-func validateDimensions(frontImg, backImg *bimg.Image) error {
+func ValidateDimensions(frontImg, backImg *bimg.Image) error {
 	frontSize, err := frontImg.Size()
 	if err != nil {
 		return err

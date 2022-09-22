@@ -1,21 +1,18 @@
-package postcards
+package postcarder
 
 import (
 	"encoding/json"
 	"image"
 
 	"cloud.google.com/go/civil"
-	"github.com/Masterminds/semver"
 	"github.com/h2non/bimg"
+	"gopkg.in/yaml.v3"
 )
 
-var Version = semver.MustParse("0.0.0")
-
 type Postcard struct {
-	Version *semver.Version
-	Meta    PostcardMetadata
-	Front   *bimg.Image
-	Back    *bimg.Image
+	Meta  PostcardMetadata
+	Front *bimg.Image
+	Back  *bimg.Image
 }
 
 type LatLong struct {
@@ -45,13 +42,24 @@ type PostcardSide struct {
 type PostcardMetadata struct {
 	Location   LatLong      `json:"location"`
 	PivotAxis  PivotAxis    `json:"pivot_axis"`
-	SentOn     Date         `json:"sent_on"`
+	SentOn     Date         `json:"sent_on" yaml:"sent_on"`
 	Senders    []string     `json:"senders"`
 	Recipients []string     `json:"recipients"`
 	Front      PostcardSide `json:"front"`
 	Back       PostcardSide `json:"back"`
 }
 
+var _ json.Marshaler = (*LatLong)(nil)
+var _ yaml.Marshaler = (*LatLong)(nil)
 var _ json.Unmarshaler = (*LatLong)(nil)
-var _ json.Unmarshaler = (*Date)(nil)
+var _ yaml.Unmarshaler = (*LatLong)(nil)
+
+var _ json.Marshaler = (*Polygon)(nil)
+var _ yaml.Marshaler = (*Polygon)(nil)
 var _ json.Unmarshaler = (*Polygon)(nil)
+var _ yaml.Unmarshaler = (*Polygon)(nil)
+
+var _ json.Marshaler = (*Date)(nil)
+var _ yaml.Marshaler = (*Date)(nil)
+var _ json.Unmarshaler = (*Date)(nil)
+var _ yaml.Unmarshaler = (*Date)(nil)

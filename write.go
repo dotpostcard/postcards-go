@@ -1,4 +1,4 @@
-package compiler
+package postcarder
 
 import (
 	"archive/tar"
@@ -9,14 +9,13 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/h2non/bimg"
-	"github.com/jphastings/postcarder/pkg/postcards"
 )
 
-func WritePostcard(pc *postcards.Postcard, w io.Writer) error {
+func Write(pc *Postcard, w io.Writer) error {
 	ar := tar.NewWriter(w)
 	defer ar.Close()
 
-	if err := writeVersion(ar, postcards.Version); err != nil {
+	if err := writeVersion(ar, Version); err != nil {
 		return err
 	}
 	if err := writeMeta(ar, pc.Meta); err != nil {
@@ -32,14 +31,14 @@ func WritePostcard(pc *postcards.Postcard, w io.Writer) error {
 	return nil
 }
 
-func WritePostcardFile(pc *postcards.Postcard, path string) error {
+func WriteFile(pc *Postcard, path string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
 
-	return WritePostcard(pc, f)
+	return Write(pc, f)
 }
 
 func writeVersion(ar *tar.Writer, ver *semver.Version) error {
@@ -58,7 +57,7 @@ func writeVersion(ar *tar.Writer, ver *semver.Version) error {
 	return err
 }
 
-func writeMeta(ar *tar.Writer, meta postcards.PostcardMetadata) error {
+func writeMeta(ar *tar.Writer, meta PostcardMetadata) error {
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(false)

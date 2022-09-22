@@ -6,8 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jphastings/postcarder/pkg/compiler"
-	"github.com/jphastings/postcarder/pkg/loader"
+	"github.com/jphastings/postcarder"
 	"github.com/spf13/cobra"
 )
 
@@ -29,12 +28,12 @@ var compileCmd = &cobra.Command{
 		dir := filepath.Dir(path)
 		base := strings.SplitN(filepath.Base(path), "-", 2)[0]
 
-		postcard, err := loader.QuickLoad(dir, base)
+		postcard, err := postcarder.CompileFiles(dir, base)
 		if err != nil {
 			return err
 		}
 
-		return compiler.WritePostcardFile(postcard, fmt.Sprintf("%s.postcard", base))
+		return postcarder.WriteFile(postcard, fmt.Sprintf("%s.postcard", base))
 	},
 }
 
