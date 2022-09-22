@@ -1,48 +1,29 @@
-package compiler
+package loader
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/h2non/bimg"
+	"io"
 	"math"
+
+	"github.com/h2non/bimg"
 )
 
-func PrepareImages(frontPath, backPath string) (*Postcard, error) {
-	frontBuf, err := bimg.Read(frontPath)
-	if err != nil {
-		return nil, err
-	}
-	backBuf, err := bimg.Read(backPath)
-	if err != nil {
-		return nil, err
-	}
-
-	frontImg := bimg.NewImage(frontBuf)
-	backImg := bimg.NewImage(backBuf)
-	if err := validateDimensions(frontImg, backImg); err != nil {
-		return nil, err
-	}
-
-	frontWebp, err := bimg.NewImage(frontBuf).Convert(bimg.WEBP)
-	if err != nil {
-		return nil, err
-	}
-	backWebp, err := bimg.NewImage(backBuf).Convert(bimg.WEBP)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Postcard{
-		Front: bytes.NewBuffer(frontWebp),
-		Back:  bytes.NewBuffer(backWebp),
-	}, nil
-}
-
 const (
-	smallestDim = 640
+	smallestDim  = 1024
 	largestRatio = 4
 	maxRatioDiff = 0.01
 )
+
+func readerToImage(r io.Reader) (*bimg.Image, error) {
+	buf := new(bytes.Buffer)
+	_, err := buf.ReadFrom(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return bimg.NewImage(buf.Bytes()), nil
+}
 
 func validateDimensions(frontImg, backImg *bimg.Image) error {
 	frontSize, err := frontImg.Size()
@@ -61,16 +42,16 @@ func validateDimensions(frontImg, backImg *bimg.Image) error {
 		return fmt.Errorf("postcard back is too small")
 	}
 
-	if frontSize.Width > largestRatio * frontSize.Height {
+	if frontSize.Width > largestRatio*frontSize.Height {
 		return fmt.Errorf("postcard front is too wide for its height")
 	}
-	if frontSize.Height > largestRatio * frontSize.Width {
+	if frontSize.Height > largestRatio*frontSize.Width {
 		return fmt.Errorf("postcard front is too high for its width")
 	}
-	if backSize.Width > largestRatio * backSize.Height {
+	if backSize.Width > largestRatio*backSize.Height {
 		return fmt.Errorf("postcard back is too wide for its height")
 	}
-	if backSize.Height > largestRatio * backSize.Width {
+	if backSize.Height > largestRatio*backSize.Width {
 		return fmt.Errorf("postcard back is too high for its width")
 	}
 
@@ -80,7 +61,7 @@ func validateDimensions(frontImg, backImg *bimg.Image) error {
 		backRatio = 1 / backRatio
 	}
 
-	ratioDiff := math.Abs(1 - frontRatio / backRatio)
+	ratioDiff := math.Abs(1 - frontRatio/backRatio)
 	if ratioDiff > maxRatioDiff {
 		return fmt.Errorf("postcard front & back are more than %.1f%% different in aspect ratio", maxRatioDiff*100)
 	}
