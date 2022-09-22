@@ -7,16 +7,16 @@ import (
 )
 
 func (pts Polygon) MarshalJSON() ([]byte, error) {
-	return json.Marshal(pts.toInts())
+	return json.Marshal(pts.toFloats())
 }
 
 func (pts *Polygon) UnmarshalJSON(b []byte) error {
-	var points [][]int
+	var points [][]float64
 	if err := json.Unmarshal(b, &points); err != nil {
 		return err
 	}
 
-	return pts.fromInts(points)
+	return pts.fromFloats(points)
 }
 
 func (d Date) MarshalJSON() ([]byte, error) {

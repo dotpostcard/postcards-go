@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"os"
 
 	"github.com/Masterminds/semver"
 	"github.com/h2non/bimg"
@@ -31,17 +30,6 @@ func Write(pc *types.Postcard, w io.Writer) error {
 	}
 
 	return nil
-}
-
-// WriteFile is a convenience method for writing a .postcard file to disk
-func WriteFile(pc *types.Postcard, path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return Write(pc, f)
 }
 
 func writeVersion(ar *tar.Writer, ver *semver.Version) error {

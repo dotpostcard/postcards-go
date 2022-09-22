@@ -24,7 +24,13 @@ var compileCmd = &cobra.Command{
 			return fmt.Errorf("file doesn't exist: %w", err)
 		}
 
-		return postcard.CompileFiles(path)
+		filename, data, err := postcard.CompileFiles(path)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("Writing postcard file to %s\n", filename)
+		return os.WriteFile(filename, data, 0600)
 	},
 }
 

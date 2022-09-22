@@ -1,11 +1,13 @@
 package postcard
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/jphastings/postcard-go/internal/compile"
@@ -13,30 +15,41 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// CompileFiles accepts a path to one of the three needed files, attempts to find the others, and writes a compiled postcard file using conventional naming.
-func CompileFiles(oneFile string) error {
-	dir := filepath.Dir(oneFile)
-	prefix := strings.SplitN(filepath.Base(oneFile), "-", 2)[0]
+var nameRegex = regexp.MustCompile(`(.+)-(?:front|back|meta)+\.[a-z]+`)
+
+// CompileFiles accepts a path to one of the three needed files, attempts to find the others, and provides the conventional name and bytes for the file.
+func CompileFiles(part string) (string, []byte, error) {
+	dir := filepath.Dir(part)
+	parts := nameRegex.FindStringSubmatch(filepath.Base(part))
+	if len(parts) != 2 {
+		return "", nil, fmt.Errorf("given filename not of the form *-{front,back,meta}.ext")
+	}
+	prefix := parts[1]
 
 	meta, err := tryLoad(dir, prefix, "meta", "yml", "yaml")
 	if err != nil {
-		return fmt.Errorf("couldn't load metadata: %w", err)
+		return "", nil, fmt.Errorf("couldn't load metadata: %w", err)
 	}
 	front, err := tryLoad(dir, prefix, "front", "png", "jpg", "tif", "tiff")
 	if err != nil {
-		return fmt.Errorf("couldn't load postcard front: %w", err)
+		return "", nil, fmt.Errorf("couldn't load postcard front: %w", err)
 	}
 	back, err := tryLoad(dir, prefix, "back", "png", "jpg", "tif", "tiff")
 	if err != nil {
-		return fmt.Errorf("couldn't load postcard back: %w", err)
+		return "", nil, fmt.Errorf("couldn't load postcard back: %w", err)
 	}
 
 	pc, err := Compile(front, back, meta)
 	if err != nil {
-		return err
+		return "", nil, err
 	}
 
-	return WriteFile(pc, fmt.Sprintf("%s.postcard", prefix))
+	buf := new(bytes.Buffer)
+	if err := Write(pc, buf); err != nil {
+		return "", nil, err
+	}
+
+	return fmt.Sprintf("%s.postcard", prefix), buf.Bytes(), nil
 }
 
 // Compile accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
