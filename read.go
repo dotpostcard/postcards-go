@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/Masterminds/semver"
-	"github.com/h2non/bimg"
 	"github.com/jphastings/postcard-go/internal/types"
 )
 
@@ -51,13 +50,13 @@ func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 	if _, err := ar.Read(frontBytes); err != nil {
 		return nil, err
 	}
-	pc.Front = bimg.NewImage(frontBytes)
+	pc.Front = frontBytes
 
 	var backBytes []byte
 	if _, err := ar.Read(backBytes); err != nil {
 		return nil, err
 	}
-	pc.Back = bimg.NewImage(backBytes)
+	pc.Back = backBytes
 
 	return pc, nil
 }

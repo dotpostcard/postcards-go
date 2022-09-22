@@ -7,7 +7,6 @@ import (
 	"io"
 
 	"github.com/Masterminds/semver"
-	"github.com/h2non/bimg"
 	"github.com/jphastings/postcard-go/internal/types"
 )
 
@@ -70,21 +69,16 @@ func writeMeta(ar *tar.Writer, meta types.Metadata) error {
 	return err
 }
 
-func writeImage(ar *tar.Writer, img *bimg.Image, name string) error {
-	webp, err := img.Convert(bimg.WEBP)
-	if err != nil {
-		return err
-	}
-
+func writeImage(ar *tar.Writer, img []byte, name string) error {
 	hdr := &tar.Header{
 		Name: name + ".webp",
 		Mode: 0444,
-		Size: int64(len(webp)),
+		Size: int64(len(img)),
 	}
 	if err := ar.WriteHeader(hdr); err != nil {
 		return err
 	}
 
-	_, wErr := ar.Write(webp)
+	_, wErr := ar.Write(img)
 	return wErr
 }

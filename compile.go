@@ -59,11 +59,11 @@ func Compile(frontReader, backReader, metaReader io.Reader) (*types.Postcard, er
 		return nil, err
 	}
 
-	frontImg, err := compile.ReaderToImage(frontReader)
+	frontImg, err := compile.ReaderToImage(frontReader, meta.Front.Secrets)
 	if err != nil {
 		return nil, err
 	}
-	backImg, err := compile.ReaderToImage(backReader)
+	backImg, err := compile.ReaderToImage(backReader, meta.Back.Secrets)
 	if err != nil {
 		return nil, err
 	}

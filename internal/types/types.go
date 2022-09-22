@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 
 	"cloud.google.com/go/civil"
-	"github.com/h2non/bimg"
 	"gopkg.in/yaml.v3"
 )
 
 type Postcard struct {
 	Meta  Metadata
-	Front *bimg.Image
-	Back  *bimg.Image
+	Front []byte
+	Back  []byte
 }
 
 type LatLong struct {

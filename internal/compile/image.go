@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"math"
 
 	"github.com/h2non/bimg"
+	"github.com/jphastings/postcard-go/internal/types"
 )
 
 const (
@@ -15,21 +17,30 @@ const (
 	maxRatioDiff = 0.01
 )
 
-func ReaderToImage(r io.Reader) (*bimg.Image, error) {
+// ReaderToImage converts any input image type to a webp image, with any secret regions blurred out
+func ReaderToImage(r io.Reader, secrets []types.Polygon) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	_, err := buf.ReadFrom(r)
 	if err != nil {
 		return nil, err
 	}
 
-	return bimg.NewImage(buf.Bytes()), nil
+	img := bimg.NewImage(buf.Bytes())
+	if len(secrets) != 0 {
+		log.Println("BEWARE! Automatic blurring of secret regions of postcards is not yet implemented!")
+	}
+
+	return img.Convert(bimg.WEBP)
 }
 
-func ValidateDimensions(frontImg, backImg *bimg.Image) error {
+func ValidateDimensions(frontData, backData []byte) error {
+	frontImg := bimg.NewImage(frontData)
 	frontSize, err := frontImg.Size()
 	if err != nil {
 		return err
 	}
+
+	backImg := bimg.NewImage(backData)
 	backSize, err := backImg.Size()
 	if err != nil {
 		return err
