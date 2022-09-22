@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/jphastings/postcard-go/internal/compile"
+	"github.com/jphastings/postcard-go/internal/types"
 	"gopkg.in/yaml.v3"
 )
 
@@ -39,8 +40,8 @@ func CompileFiles(oneFile string) error {
 }
 
 // Compile accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
-func Compile(frontReader, backReader, metaReader io.Reader) (*Postcard, error) {
-	var meta PostcardMetadata
+func Compile(frontReader, backReader, metaReader io.Reader) (*types.Postcard, error) {
+	var meta types.Metadata
 	if err := yaml.NewDecoder(metaReader).Decode(&meta); err != nil {
 		return nil, err
 	}
@@ -58,7 +59,7 @@ func Compile(frontReader, backReader, metaReader io.Reader) (*Postcard, error) {
 		return nil, err
 	}
 
-	return &Postcard{
+	return &types.Postcard{
 		Front: frontImg,
 		Back:  backImg,
 		Meta:  meta,

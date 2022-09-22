@@ -1,4 +1,4 @@
-package postcard
+package types
 
 import (
 	"encoding/json"
@@ -10,7 +10,7 @@ import (
 )
 
 type Postcard struct {
-	Meta  PostcardMetadata
+	Meta  Metadata
 	Front *bimg.Image
 	Back  *bimg.Image
 }
@@ -33,20 +33,20 @@ const (
 	PivotAxisDownRight
 )
 
-type PostcardSide struct {
+type Side struct {
 	Description   LocalizedText `json:"description"`
 	Transcription string        `json:"transcription"`
 	Secrets       []Polygon     `json:"secrets"`
 }
 
-type PostcardMetadata struct {
-	Location   LatLong      `json:"location"`
-	PivotAxis  PivotAxis    `json:"pivot_axis"`
-	SentOn     Date         `json:"sent_on" yaml:"sent_on"`
-	Senders    []string     `json:"senders"`
-	Recipients []string     `json:"recipients"`
-	Front      PostcardSide `json:"front"`
-	Back       PostcardSide `json:"back"`
+type Metadata struct {
+	Location   LatLong   `json:"location"`
+	PivotAxis  PivotAxis `json:"pivot_axis"`
+	SentOn     Date      `json:"sent_on" yaml:"sent_on"`
+	Senders    []string  `json:"senders"`
+	Recipients []string  `json:"recipients"`
+	Front      Side      `json:"front"`
+	Back       Side      `json:"back"`
 }
 
 var _ json.Marshaler = (*LatLong)(nil)

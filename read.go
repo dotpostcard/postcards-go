@@ -5,18 +5,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/h2non/bimg"
+	"github.com/jphastings/postcard-go/internal/types"
 )
 
-var maxReadableVersion = Version.IncMinor()
+var (
+	cannotRead = semver.MustParse("1.0.0")
+	warnOnRead = semver.MustParse("0.1.0")
+)
 
 // Read will parse a Postcard struct from a Reader
-func Read(r io.Reader, metaOnly bool) (*Postcard, error) {
-	pc := &Postcard{}
+func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
+	pc := &types.Postcard{}
 	ar := tar.NewReader(r)
 
 	version, err := readVersion(ar)
@@ -24,8 +29,12 @@ func Read(r io.Reader, metaOnly bool) (*Postcard, error) {
 		return nil, fmt.Errorf("unable to read version file: %w", err)
 	}
 
-	if maxReadableVersion.LessThan(version) {
-		return nil, fmt.Errorf("postcard is too new to be processed (postcard is %s, library is %s)", version, Version)
+	if cannotRead.LessThan(version) {
+		return nil, fmt.Errorf("postcard is too new to be processed (postcard is v%s, library cannot read v%s or above)", version, cannotRead)
+	}
+
+	if warnOnRead.LessThan(version) {
+		log.Printf("This postcard (v%s) may have features this library cannot make use of. Upgrade to v%s or greater to remove this warning.", version, warnOnRead)
 	}
 
 	meta, err := readMeta(ar)
@@ -54,7 +63,7 @@ func Read(r io.Reader, metaOnly bool) (*Postcard, error) {
 }
 
 // ReadFile is a convenience method for reading from a .postcard file from disk
-func ReadFile(path string, metaOnly bool) (*Postcard, error) {
+func ReadFile(path string, metaOnly bool) (*types.Postcard, error) {
 	f, err := os.Open(path)
 	if err != nil {
 		return nil, err
@@ -80,8 +89,8 @@ func readVersion(ar *tar.Reader) (*semver.Version, error) {
 	return semver.NewVersion(buf.String())
 }
 
-func readMeta(ar *tar.Reader) (PostcardMetadata, error) {
-	var meta PostcardMetadata
+func readMeta(ar *tar.Reader) (types.Metadata, error) {
+	var meta types.Metadata
 
 	hdr, err := ar.Next()
 	if err != nil {

@@ -9,10 +9,11 @@ import (
 
 	"github.com/Masterminds/semver"
 	"github.com/h2non/bimg"
+	"github.com/jphastings/postcard-go/internal/types"
 )
 
 // Write creates the postcard file tarball from the in-memory object, writing to the given Writer
-func Write(pc *Postcard, w io.Writer) error {
+func Write(pc *types.Postcard, w io.Writer) error {
 	ar := tar.NewWriter(w)
 	defer ar.Close()
 
@@ -33,7 +34,7 @@ func Write(pc *Postcard, w io.Writer) error {
 }
 
 // WriteFile is a convenience method for writing a .postcard file to disk
-func WriteFile(pc *Postcard, path string) error {
+func WriteFile(pc *types.Postcard, path string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -59,7 +60,7 @@ func writeVersion(ar *tar.Writer, ver *semver.Version) error {
 	return err
 }
 
-func writeMeta(ar *tar.Writer, meta PostcardMetadata) error {
+func writeMeta(ar *tar.Writer, meta types.Metadata) error {
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(false)

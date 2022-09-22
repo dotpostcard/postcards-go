@@ -1,4 +1,4 @@
-package postcard
+package types
 
 import (
 	"encoding/json"
