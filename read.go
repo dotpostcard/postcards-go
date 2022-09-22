@@ -1,4 +1,4 @@
-package postcarder
+package postcard
 
 import (
 	"archive/tar"

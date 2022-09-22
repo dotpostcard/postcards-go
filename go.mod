@@ -1,4 +1,4 @@
-module github.com/jphastings/postcarder
+module github.com/jphastings/postcard-go
 
 go 1.19
 
@@ -13,6 +13,7 @@ require (
 	github.com/ipfs/go-ipfs-blockstore v1.1.2
 	github.com/ipfs/go-merkledag v0.5.1
 	github.com/ipld/go-car v0.4.0
+	github.com/jphastings/postcarder v0.0.0-20220922073213-1fb764ab5e3e
 	github.com/polydawn/refmt v0.0.0-20201211092308-30ac6d18308e
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.11.0

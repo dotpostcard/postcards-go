@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jphastings/postcarder"
+	"github.com/jphastings/postcard-go"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ var compileCmd = &cobra.Command{
 			return fmt.Errorf("file doesn't exist: %w", err)
 		}
 
-		return postcarder.CompileFiles(path)
+		return postcard.CompileFiles(path)
 	},
 }
 

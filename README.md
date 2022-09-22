@@ -1,6 +1,6 @@
-# Postcarder
+# Postcard
 
-A **work in progress** library for interacting with `.postcard` files, and the current reference implentation of the structure of this filetype.
+A **work in progress** library for interacting with `.postcard` files, and the current reference implementation of the structure of this filetype.
 
 A `.postcard` file represents a physical postcard digitally; a double-sided image with metadata like: URLs referencing to the sender(s) and receiver(s), the date it was sent on, the lat/long of where it was sent from, transcriptions of any written text on the front/back, and image descriptions of the front/back.
 

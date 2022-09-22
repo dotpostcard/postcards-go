@@ -1,4 +1,4 @@
-package postcarder
+package postcard
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/jphastings/postcarder/internal/compile"
+	"github.com/jphastings/postcard-go/internal/compile"
 	"gopkg.in/yaml.v3"
 )
 
