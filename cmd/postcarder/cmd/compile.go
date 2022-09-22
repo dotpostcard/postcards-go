@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/jphastings/postcarder"
 	"github.com/spf13/cobra"
@@ -25,15 +24,7 @@ var compileCmd = &cobra.Command{
 			return fmt.Errorf("file doesn't exist: %w", err)
 		}
 
-		dir := filepath.Dir(path)
-		base := strings.SplitN(filepath.Base(path), "-", 2)[0]
-
-		postcard, err := postcarder.CompileFiles(dir, base)
-		if err != nil {
-			return err
-		}
-
-		return postcarder.WriteFile(postcard, fmt.Sprintf("%s.postcard", base))
+		return postcarder.CompileFiles(path)
 	},
 }
 

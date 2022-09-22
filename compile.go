@@ -5,29 +5,40 @@ import (
 	"io"
 	"os"
 	"path"
+	"path/filepath"
 	"strings"
 
 	"github.com/jphastings/postcarder/internal/compile"
 	"gopkg.in/yaml.v3"
 )
 
-func CompileFiles(dir, prefix string) (*Postcard, error) {
+// CompileFiles accepts a path to one of the three needed files, attempts to find the others, and writes a compiled postcard file using conventional naming.
+func CompileFiles(oneFile string) error {
+	dir := filepath.Dir(oneFile)
+	prefix := strings.SplitN(filepath.Base(oneFile), "-", 2)[0]
+
 	meta, err := tryLoad(dir, prefix, "meta", "yml", "yaml")
 	if err != nil {
-		return nil, fmt.Errorf("couldn't load metadata: %w", err)
+		return fmt.Errorf("couldn't load metadata: %w", err)
 	}
 	front, err := tryLoad(dir, prefix, "front", "png", "jpg", "tif", "tiff")
 	if err != nil {
-		return nil, fmt.Errorf("couldn't load postcard front: %w", err)
+		return fmt.Errorf("couldn't load postcard front: %w", err)
 	}
 	back, err := tryLoad(dir, prefix, "back", "png", "jpg", "tif", "tiff")
 	if err != nil {
-		return nil, fmt.Errorf("couldn't load postcard back: %w", err)
+		return fmt.Errorf("couldn't load postcard back: %w", err)
 	}
 
-	return Compile(front, back, meta)
+	pc, err := Compile(front, back, meta)
+	if err != nil {
+		return err
+	}
+
+	return WriteFile(pc, fmt.Sprintf("%s.postcard", prefix))
 }
 
+// Compile accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
 func Compile(frontReader, backReader, metaReader io.Reader) (*Postcard, error) {
 	var meta PostcardMetadata
 	if err := yaml.NewDecoder(metaReader).Decode(&meta); err != nil {

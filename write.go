@@ -11,6 +11,7 @@ import (
 	"github.com/h2non/bimg"
 )
 
+// Write creates the postcard file tarball from the in-memory object, writing to the given Writer
 func Write(pc *Postcard, w io.Writer) error {
 	ar := tar.NewWriter(w)
 	defer ar.Close()
@@ -31,6 +32,7 @@ func Write(pc *Postcard, w io.Writer) error {
 	return nil
 }
 
+// WriteFile is a convenience method for writing a .postcard file to disk
 func WriteFile(pc *Postcard, path string) error {
 	f, err := os.Create(path)
 	if err != nil {

@@ -14,6 +14,7 @@ import (
 
 var maxReadableVersion = Version.IncMinor()
 
+// Read will parse a Postcard struct from a Reader
 func Read(r io.Reader, metaOnly bool) (*Postcard, error) {
 	pc := &Postcard{}
 	ar := tar.NewReader(r)
@@ -52,6 +53,7 @@ func Read(r io.Reader, metaOnly bool) (*Postcard, error) {
 	return pc, nil
 }
 
+// ReadFile is a convenience method for reading from a .postcard file from disk
 func ReadFile(path string, metaOnly bool) (*Postcard, error) {
 	f, err := os.Open(path)
 	if err != nil {

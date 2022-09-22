@@ -1,22 +1,28 @@
 # Postcarder
 
-An attempt to build a CLI tool that will take a front & back scanned image of a postcard and try to produce a `.postcard` file. This will be an IPFS CARv2 file with a single root, holding the following IPLD references:
+A **work in progress** library for interacting with `.postcard` files, and the current reference implentation of the structure of this filetype.
 
-- Images for the front and back of the postcard
+A `.postcard` file represents a physical postcard digitally; a double-sided image with metadata like: URLs referencing to the sender(s) and receiver(s), the date it was sent on, the lat/long of where it was sent from, transcriptions of any written text on the front/back, and image descriptions of the front/back.
+
+The contained CLI tool, `postcarder`, is able to compile front & back images, and a metadata file into a `.postcard` file:
+
+```bash
+$ go install github.com/jphastings/postcarder/cmd/postcarder@latest
+$ postcarder compile fixtures/hello-front.jpg
+```
+
+### Implementation notes
+
+A `.postcard` file is a tarball with 4 files (in the following order):
+
+1. A `VERSION` file containing the semantic version of the library that created it.
+2. A JSON metadata file (see `types.go` for spec)
+3. A WebP image file representing the front of the postcard.
   - Physical dimensions should be correctly set (ie. DPI)
-  - Ideally co-registered, so flipping about the verical axis (for homoriented postcards) or about one of the diagonal axis (for heteroriented postcards) have the same or extremely similar outlines
-  - Ideally with a transparent background, either with an additional mask image, or using a transparency-capanble image format (webp?)
-- A metadata file containing information about the postcard. Possibly including:
-  - Date sent
-  - Date received
-  - Sender URI(s)
-  - Intended recipient URI(s)
-  - Transcription of back (or front!) text
-  - Alt-text of front/back images
+  - Ideally with a transparent background
+    - Hopefully the `postcarder` tool will one day help with auto-removal of the background of scanned postcards
+4. An image for the back of the postcard (identical in format to 3)
+  - The physical dimensions should be within 1% of physical dimensions of the front of the postcard. This allows for different resolutions on front & back
+  - Ideally co-registered, so flipping about the verical or horizontal axis (for homoriented postcards) or about one of the diagonal axes (for heteroriented postcards) have the same or extremely similar outlines
 
-## Progress
-
-The complex parts of this code are:
-- Automatic co-registration
-- Automatic removal of background
-  - This is where I've been focusing my efforts
+The ordering of these files in the tarball matters so version and metadata can be assessed early as larger postcard files are being streamed.
