@@ -28,6 +28,8 @@ func hideSecrets(img *bimg.Image, dim *types.Dimensions, secrets []types.Polygon
 		return nil, err
 	}
 
+	// TODO: does this maintain the original resolutions?
+	// I need tighter control over what metadata is written
 	return img.Process(bimg.Options{WatermarkImage: overlay})
 }
 

@@ -1,7 +1,6 @@
 package compile
 
 import (
-	"bytes"
 	"fmt"
 	_ "image/jpeg"
 	_ "image/png"
@@ -13,58 +12,80 @@ import (
 )
 
 func readerToImage(r io.Reader) (*bimg.Image, *types.Dimensions, error) {
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(r); err != nil {
-		return nil, nil, err
-	}
-
-	// TODO: UGH. Only the webp version has the resolution info, but the png version is needed for pixel analysis
-	webpData, err := bimg.NewImage(buf.Bytes()).Convert(bimg.WEBP)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, nil, err
 	}
-	pngData, err := bimg.NewImage(buf.Bytes()).Convert(bimg.PNG)
+	vips := bimg.NewImage(b)
+	size, err := vips.Size()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	img := bimg.NewImage(webpData)
-	size, err := img.Size()
+	hRes, vRes, err := extractResolution(vips)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	vMeta, err := img.Metadata()
+	dims := &types.Dimensions{
+		Width:  resolutionToCentimeters(size.Width, hRes),
+		Height: resolutionToCentimeters(size.Height, vRes),
+	}
+
+	switch vips.Type() {
+	case "jpeg", "png":
+		// These are useable image types
+	default:
+		pngData, err := vips.Convert(bimg.PNG)
+		if err != nil {
+			return nil, nil, err
+		}
+		vips = bimg.NewImage(pngData)
+	}
+
+	return vips, dims, nil
+}
+
+func extractResolution(vips *bimg.Image) (*big.Rat, *big.Rat, error) {
+	var (
+		imMeta bimg.ImageMetadata
+		err    error
+	)
+
+	if vips.Type() == "png" {
+		// This is mega annoying; bimg can't extract exif data from PNG files, apparently
+		exifData, err := vips.Convert(bimg.JPEG)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		if imMeta, err = bimg.Metadata(exifData); err != nil {
+			return nil, nil, err
+		}
+	} else if imMeta, err = vips.Metadata(); err != nil {
+		return nil, nil, err
+	}
+
+	scaler, err := exifResolutionScaler(imMeta.EXIF.ResolutionUnit)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	scaler, err := exifResolutionScaler(vMeta.EXIF.ResolutionUnit)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	horizontalRes, err := exifResolutionToFloat(vMeta.EXIF.XResolution)
+	hRes, err := exifResolutionToFloat(imMeta.EXIF.XResolution)
 	if err != nil {
 		return nil, nil, fmt.Errorf("invalid horizontal resolution in EXIF data: %v", err)
 	}
 
-	verticalRes, err := exifResolutionToFloat(vMeta.EXIF.YResolution)
+	vRes, err := exifResolutionToFloat(imMeta.EXIF.YResolution)
 	if err != nil {
 		return nil, nil, fmt.Errorf("invalid vertical resolution in EXIF data: %v", err)
 	}
 
-	dims := &types.Dimensions{
-		Width:  resolutionToCentimeters(size.Width, horizontalRes, scaler),
-		Height: resolutionToCentimeters(size.Height, verticalRes, scaler),
-	}
-
-	return bimg.NewImage(pngData), dims, nil
+	return hRes.Mul(hRes, scaler), vRes.Mul(vRes, scaler), nil
 }
 
-func resolutionToCentimeters(pixels int, res, scaler *big.Rat) types.Centimeters {
-	scaledRes := res.Mul(res, scaler)
-	cms := scaledRes.Quo(big.NewRat(int64(pixels), 1), scaledRes)
+func resolutionToCentimeters(pixels int, res *big.Rat) types.Centimeters {
+	cms := res.Quo(big.NewRat(int64(pixels), 1), res)
 	return types.Centimeters(cms)
 }
 
