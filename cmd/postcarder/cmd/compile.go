@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jphastings/postcard-go"
+	"github.com/jphastings/postcard-go/compile"
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +24,7 @@ var compileCmd = &cobra.Command{
 			return fmt.Errorf("file doesn't exist: %w", err)
 		}
 
-		filename, data, err := postcard.CompileFiles(path)
+		filename, data, err := compile.FromFiles(path)
 		if err != nil {
 			return err
 		}

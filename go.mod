@@ -15,10 +15,13 @@ require (
 	github.com/ipld/go-car v0.4.0
 	github.com/jphastings/postcarder v0.0.0-20220922073213-1fb764ab5e3e
 	github.com/polydawn/refmt v0.0.0-20201211092308-30ac6d18308e
+	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.11.0
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+require github.com/tklauser/go-sysconf v0.3.10 // indirect
 
 require (
 	github.com/Masterminds/semver v1.5.0

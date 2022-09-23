@@ -1,14 +1,14 @@
-package postcard_test
+package compile_test
 
 import (
 	"crypto/md5"
 	"fmt"
 
-	"github.com/jphastings/postcard-go"
+	"github.com/jphastings/postcard-go/compile"
 )
 
-func ExampleCompileFiles() {
-	filename, data, err := postcard.CompileFiles("fixtures/hello-meta.yaml")
+func ExampleFromFiles() {
+	filename, data, err := compile.FromFiles("fixtures/hello-meta.yaml")
 	if err != nil {
 		panic(err)
 	}

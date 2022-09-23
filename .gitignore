@@ -1,2 +1,5 @@
 *.postcard
 !fixtures/*.postcard
+
+# The built commands, to prevent stray `go build`s from adding to the repo
+postcarder

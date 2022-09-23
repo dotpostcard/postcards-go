@@ -13,6 +13,10 @@ $ postcarder compile fixtures/hello-front.jpg
 
 ### Implementation notes
 
+The package at the root of this repo handles the 'steady state' interaction with postcard files — eg. readinging & writing — and have extremely limited dependencies. The packages one level deeper (eg. `compile` and `validate`) hold functionality that needs complex dependencies (eg. a capable image processing library), except for `internal`, which holds packages that are common dependencies.
+
+### File format notes
+
 A `.postcard` file is a tarball with 4 files (in the following order):
 
 1. A `VERSION` file containing the semantic version of the library that created it.

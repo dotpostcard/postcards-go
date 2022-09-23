@@ -29,15 +29,6 @@ type LocalizedText map[string]string
 type Polygon []Point
 type Date civil.Date
 
-type PivotAxis uint
-
-const (
-	PivotAxisUp PivotAxis = iota
-	PivotAxisUpRight
-	PivotAxisRight
-	PivotAxisDownRight
-)
-
 type Side struct {
 	Description   LocalizedText `json:"description"`
 	Transcription string        `json:"transcription"`
@@ -45,13 +36,14 @@ type Side struct {
 }
 
 type Metadata struct {
-	Location   LatLong   `json:"location"`
-	PivotAxis  PivotAxis `json:"pivot_axis"`
-	SentOn     Date      `json:"sent_on" yaml:"sent_on"`
-	Senders    []string  `json:"senders"`
-	Recipients []string  `json:"recipients"`
-	Front      Side      `json:"front"`
-	Back       Side      `json:"back"`
+	Location        LatLong     `json:"location"`
+	PivotAxis       PivotAxis   `json:"pivot_axis"`
+	SentOn          Date        `json:"sent_on" yaml:"sent_on"`
+	Senders         []string    `json:"senders"`
+	Recipients      []string    `json:"recipients"`
+	Front           Side        `json:"front"`
+	Back            Side        `json:"back"`
+	FrontDimensions *Dimensions `json:"front_dimensions" yaml:",omit"`
 }
 
 var _ json.Marshaler = (*LatLong)(nil)
