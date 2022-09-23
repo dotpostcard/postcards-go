@@ -6,6 +6,8 @@ import (
 	"math/big"
 )
 
+var bigPostcardCm float64 = 30
+
 type Centimeters *big.Rat
 type Dimensions struct {
 	Width  Centimeters `json:"w"`
@@ -48,4 +50,14 @@ func (d *Dimensions) String() string {
 
 	w, h := d.asFloats()
 	return fmt.Sprintf("%.1fcm x %.1fcm", w, h)
+}
+
+func (d *Dimensions) IsBig() bool {
+	if d == nil {
+		return false
+	}
+
+	w, h := d.asFloats()
+
+	return w >= bigPostcardCm || h >= bigPostcardCm
 }

@@ -37,7 +37,7 @@ type Side struct {
 
 type Metadata struct {
 	Location        LatLong     `json:"location"`
-	PivotAxis       PivotAxis   `json:"pivot_axis"`
+	PivotAxis       PivotAxis   `json:"pivot_axis" yaml:"pivot_axis"`
 	SentOn          Date        `json:"sent_on" yaml:"sent_on"`
 	Senders         []string    `json:"senders"`
 	Recipients      []string    `json:"recipients"`

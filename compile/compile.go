@@ -81,6 +81,10 @@ func FromReaders(frontReader, backReader, metaReader io.Reader) (*types.Postcard
 		return nil, err
 	}
 
+	if pc.Meta.FrontDimensions.IsBig() {
+		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", pc.Meta.FrontDimensions)
+	}
+
 	return pc, nil
 }
 
