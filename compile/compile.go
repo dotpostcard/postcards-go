@@ -3,6 +3,10 @@ package compile
 import (
 	"bytes"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	"image/png"
+	_ "image/png"
 	"io"
 	"log"
 	"os"
@@ -62,30 +66,58 @@ func FromReaders(frontReader, backReader, metaReader io.Reader) (*types.Postcard
 		return nil, err
 	}
 
-	frontImg, err := readerToImage(frontReader, meta.Front.Secrets)
+	frontImg, frontDims, err := readerToImage(frontReader)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse image for front image: %w", err)
+	}
+	backImg, backDims, err := readerToImage(backReader)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse image for back image: %w", err)
+	}
+
+	meta.FrontDimensions = frontDims
+
+	if err := validate.Dimensions(&meta, frontImg, backImg, frontDims, backDims); err != nil {
+		return nil, err
+	}
+
+	if meta.FrontDimensions.IsBig() {
+		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", meta.FrontDimensions)
+	}
+
+	if err := hideSecrets(frontImg, frontDims, meta.Front.Secrets); err != nil {
+		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard front: %w", err)
+	}
+	if err := hideSecrets(backImg, backDims, meta.Back.Secrets); err != nil {
+		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard back: %w", err)
+	}
+
+	frontBytes, err := encodeWebP(frontImg)
 	if err != nil {
 		return nil, err
 	}
-	backImg, err := readerToImage(backReader, meta.Back.Secrets)
+	backBytes, err := encodeWebP(backImg)
 	if err != nil {
 		return nil, err
 	}
 
 	pc := &types.Postcard{
-		Front: frontImg,
-		Back:  backImg,
+		Front: frontBytes,
+		Back:  backBytes,
 		Meta:  meta,
 	}
 
-	if err := validate.Dimensions(pc); err != nil {
+	return pc, nil
+}
+
+// Ugh, this is dirty
+func encodeWebP(img image.Image) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	if err := png.Encode(buf, img); err != nil {
 		return nil, err
 	}
 
-	if pc.Meta.FrontDimensions.IsBig() {
-		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", pc.Meta.FrontDimensions)
-	}
-
-	return pc, nil
+	return bimg.NewImage(buf.Bytes()).Convert(bimg.WEBP)
 }
 
 func openVagueFilename(dir, prefix, suffix string, extensions ...string) (io.Reader, error) {
@@ -96,20 +128,4 @@ func openVagueFilename(dir, prefix, suffix string, extensions ...string) (io.Rea
 		}
 	}
 	return nil, fmt.Errorf("no file '%s-%s.{%s}' in %s", prefix, suffix, strings.Join(extensions, ","), dir)
-}
-
-// readerToImage converts any input image type to a webp image, with any secret regions blurred out
-func readerToImage(r io.Reader, secrets []types.Polygon) ([]byte, error) {
-	buf := new(bytes.Buffer)
-	_, err := buf.ReadFrom(r)
-	if err != nil {
-		return nil, err
-	}
-
-	img := bimg.NewImage(buf.Bytes())
-	if len(secrets) != 0 {
-		log.Println("BEWARE! Automatic blurring of secret regions of postcards is not yet implemented!")
-	}
-
-	return img.Convert(bimg.WEBP)
 }

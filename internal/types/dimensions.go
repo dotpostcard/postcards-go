@@ -14,7 +14,7 @@ type Dimensions struct {
 	Height Centimeters `json:"h"`
 }
 
-func (d *Dimensions) asFloats() (float64, float64) {
+func (d *Dimensions) AsFloats() (float64, float64) {
 	var wr, hr *big.Rat
 	wr = d.Width
 	hr = d.Height
@@ -24,7 +24,7 @@ func (d *Dimensions) asFloats() (float64, float64) {
 }
 
 func (d *Dimensions) AspectRatio() float64 {
-	w, h := d.asFloats()
+	w, h := d.AsFloats()
 	return w / h
 }
 
@@ -48,7 +48,7 @@ func (d *Dimensions) String() string {
 		return "unknown dimensions"
 	}
 
-	w, h := d.asFloats()
+	w, h := d.AsFloats()
 	return fmt.Sprintf("%.1fcm x %.1fcm", w, h)
 }
 
@@ -57,7 +57,7 @@ func (d *Dimensions) IsBig() bool {
 		return false
 	}
 
-	w, h := d.asFloats()
+	w, h := d.AsFloats()
 
 	return w >= bigPostcardCm || h >= bigPostcardCm
 }

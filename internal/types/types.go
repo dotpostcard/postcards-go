@@ -18,13 +18,6 @@ type LatLong struct {
 	Longitude float64 `json:"long"`
 }
 
-// Point represents a point on a postcard, stored as a percentage of the width (X) or height (Y)
-// where 1.0 is the right, or bottom, of the postcard, and 0 is the left, or top.
-type Point struct {
-	X float64
-	Y float64
-}
-
 type LocalizedText map[string]string
 type Polygon []Point
 type Date civil.Date
