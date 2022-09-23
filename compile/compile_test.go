@@ -8,11 +8,11 @@ import (
 )
 
 func ExampleFromFiles() {
-	filename, data, err := compile.FromFiles("fixtures/hello-meta.yaml")
+	filename, data, err := compile.FromFiles("../fixtures/hello-meta.yaml")
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Printf("%s has checksum %x", filename, md5.Sum(data))
-	// Output: hello.postcard has checksum ff4a9cfa149751cf0a9d68592da92f3c
+	// Output: hello.postcard has checksum 3b701cc7001611bac858d8b824573c22
 }
