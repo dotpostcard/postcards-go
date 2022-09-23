@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jphastings/postcarder"
+	"github.com/jphastings/postcard-go"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +12,7 @@ var infoCmd = &cobra.Command{
 	Short: "prints info about the specified postcard",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		pc, err := postcarder.ReadFile(args[0], true)
+		pc, err := postcard.ReadFile(args[0], true)
 		if err != nil {
 			return fmt.Errorf("unable to read postcard file: %w", err)
 		}

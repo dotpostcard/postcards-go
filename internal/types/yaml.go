@@ -125,35 +125,3 @@ func (box SecretBox) intoPolygon(pts *Polygon) error {
 func outOfBounds(d float64) bool {
 	return d < 0.0 || d > 1.0
 }
-
-// func parseSecret(secret yamlSecret) (postcards.Polygon, error) {
-// 	ints, err := splitNInts(secret.HeightBottomLeftWidthHeight, ",", 5)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	top := ints[0] - ints[1]
-// 	left := ints[2]
-// 	bottom := top - ints[4]
-// 	right := left + ints[3]
-
-// 	return []image.Point{
-// 		{left, top},
-// 		{right, top},
-// 		{right, bottom},
-// 		{left, bottom},
-// 	}, nil
-// }
-
-// func splitNInts(in string, sep string, n int) ([]int, error) {
-// 	parts := strings.SplitN(in, ",", n)
-// 	intParts := make([]int, n)
-// 	for i, part := range parts {
-// 		intPart, err := strconv.Atoi(part)
-// 		if err != nil {
-// 			return intParts, err
-// 		}
-// 		intParts[i] = intPart
-// 	}
-// 	return intParts, nil
-// }

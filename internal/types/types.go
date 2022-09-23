@@ -43,7 +43,7 @@ type Metadata struct {
 	Recipients      []string    `json:"recipients"`
 	Front           Side        `json:"front"`
 	Back            Side        `json:"back"`
-	FrontDimensions *Dimensions `json:"front_dimensions" yaml:",omit"`
+	FrontDimensions *Dimensions `json:"front_dimensions_cm" yaml:",omitempty"`
 }
 
 var _ json.Marshaler = (*LatLong)(nil)

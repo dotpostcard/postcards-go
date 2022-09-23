@@ -2,8 +2,7 @@ package validate
 
 import (
 	"fmt"
-	"math"
-	"strconv"
+	"math/big"
 
 	"github.com/h2non/bimg"
 	"github.com/jphastings/postcard-go/internal/types"
@@ -35,6 +34,25 @@ func Dimensions(pc *types.Postcard) error {
 		return fmt.Errorf("postcard back is too small")
 	}
 
+	frontDim, err := dimensions(frontImg, frontSize)
+	if err != nil {
+		return err
+	}
+	backDim, err := dimensions(backImg, backSize)
+	if err != nil {
+		return err
+	}
+
+	if pc.Meta.FrontDimensions == nil {
+		pc.Meta.FrontDimensions = frontDim
+	} else if frontDim != pc.Meta.FrontDimensions {
+		return fmt.Errorf("the front image (%s) doesn't match the physical dimensions specified in the metadata file (%s)", frontDim, pc.Meta.FrontDimensions)
+	}
+
+	if !frontDim.SimilarSize(backDim, pc.Meta.PivotAxis.Heteroriented(), maxRatioDiff) {
+		return fmt.Errorf("the back image (%s) doesn't match the physical dimensions of the front image (%s) when flipped about the %s", backDim, frontDim, pc.Meta.PivotAxis)
+	}
+
 	if frontSize.Width > largestRatio*frontSize.Height {
 		return fmt.Errorf("postcard front is too wide for its height")
 	}
@@ -48,48 +66,10 @@ func Dimensions(pc *types.Postcard) error {
 		return fmt.Errorf("postcard back is too high for its width")
 	}
 
-	frontDim, err := dimensions(frontImg)
-	if err != nil {
-		return err
-	}
-	backDim, err := dimensions(frontImg)
-	if err != nil {
-		return err
-	}
-
-	fmt.Println("Dimensions", frontDim, backDim)
-	if pc.Meta.FrontDimensions == nil {
-		pc.Meta.FrontDimensions = frontDim
-
-		fmt.Println(frontDim)
-	} else if frontDim != pc.Meta.FrontDimensions {
-		return fmt.Errorf("the front image doesn't match the physical dimensions specified in the metadata file")
-	}
-
-	if !frontDim.Same(backDim, pc.Meta.PivotAxis.Heteroriented()) {
-		return fmt.Errorf("the back image doesn't match the physical dimensions of the front image (when flipped about the %s, as defined)", pc.Meta.PivotAxis)
-	}
-
-	frontRatio := types.NewAspectRatio(float64(frontSize.Width), float64(frontSize.Height))
-	backRatio := types.NewAspectRatio(float64(frontSize.Width), float64(frontSize.Height))
-
-	var flippedBack types.AspectRatio
-	if pc.Meta.PivotAxis.Heteroriented() {
-		flippedBack = 1 / backRatio
-	} else {
-		flippedBack = backRatio
-	}
-
-	ratioDiff := math.Abs(1 - float64(frontRatio)/float64(flippedBack))
-	if ratioDiff > maxRatioDiff {
-		return fmt.Errorf(
-			"image sizes don't align: aspect ratios of postcard front (%s) & back (%s) are different "+
-				"by %.1f%% (when flipped along the %s, as defined)", frontRatio, backRatio, ratioDiff*100, pc.Meta.PivotAxis)
-	}
 	return nil
 }
 
-func dimensions(img *bimg.Image) (*types.Dimensions, error) {
+func dimensions(img *bimg.Image, size bimg.ImageSize) (*types.Dimensions, error) {
 	meta, err := img.Metadata()
 	if err != nil {
 		return nil, err
@@ -100,32 +80,48 @@ func dimensions(img *bimg.Image) (*types.Dimensions, error) {
 		return nil, err
 	}
 
-	width, err := strconv.ParseFloat(meta.EXIF.XResolution, 64)
+	horizontalRes, err := exifResolutionToFloat(meta.EXIF.XResolution)
 	if err != nil {
-		return nil, fmt.Errorf("invalid width resolution in EXIF data: %v", err)
+		return nil, fmt.Errorf("invalid horizontal resolution in EXIF data: %v", err)
 	}
 
-	height, err := strconv.ParseFloat(meta.EXIF.YResolution, 64)
+	verticalRes, err := exifResolutionToFloat(meta.EXIF.YResolution)
 	if err != nil {
-		return nil, fmt.Errorf("invalid height resolution in EXIF data: %v", err)
+		return nil, fmt.Errorf("invalid vertical resolution in EXIF data: %v", err)
 	}
 
 	return &types.Dimensions{
-		Width:  types.Centimeters(width * scaler),
-		Height: types.Centimeters(height * scaler),
+		Width:  resolutionToCentimeters(size.Width, horizontalRes, scaler),
+		Height: resolutionToCentimeters(size.Height, verticalRes, scaler),
 	}, nil
 }
 
+func resolutionToCentimeters(pixels int, res, scaler *big.Rat) types.Centimeters {
+	scaledRes := res.Mul(res, scaler)
+	cms := scaledRes.Quo(big.NewRat(int64(pixels), 1), scaledRes)
+	return types.Centimeters(cms)
+}
+
+// Resolutions are specified in 'rational64u' format: https://exiftool.org/TagNames/EXIF.html#:~:text=0x011a-,XResolution,-rational64u%3A
+func exifResolutionToFloat(res string) (*big.Rat, error) {
+	var a, b int64
+	if _, err := fmt.Sscanf(res, "%d/%d", &a, &b); err != nil {
+		return &big.Rat{}, fmt.Errorf("invalid width resolution in EXIF data: %v", err)
+	}
+
+	return big.NewRat(a, b), nil
+}
+
 // As defined by https://exiftool.org/TagNames/EXIF.html#:~:text=0x0128-,ResolutionUnit,-int16u%3A
-func exifResolutionScaler(unit int) (float64, error) {
+func exifResolutionScaler(unit int) (*big.Rat, error) {
 	switch unit {
 	case 1: // None
-		return 0, fmt.Errorf("no resolution unit in EXIf data for physical dimensions of image")
+		return &big.Rat{}, fmt.Errorf("no resolution unit in EXIf data for physical dimensions of image")
 	case 2: // Inches
-		return 0.393701, nil
+		return big.NewRat(100, 254), nil // Who knew, an inch is *exactly* 2.54 cm, as of 1959?
 	case 3: // Centimeters
-		return 1, nil
+		return big.NewRat(1, 1), nil
 	default:
-		return 0, fmt.Errorf("invalid unit in EXIf data for physical dimensions of image")
+		return &big.Rat{}, fmt.Errorf("invalid unit in EXIf data for physical dimensions of image")
 	}
 }
