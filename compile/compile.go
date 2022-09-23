@@ -3,10 +3,6 @@ package compile
 import (
 	"bytes"
 	"fmt"
-	"image"
-	_ "image/jpeg"
-	"image/png"
-	_ "image/png"
 	"io"
 	"log"
 	"os"
@@ -85,39 +81,31 @@ func FromReaders(frontReader, backReader, metaReader io.Reader) (*types.Postcard
 		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", meta.FrontDimensions)
 	}
 
-	if err := hideSecrets(frontImg, frontDims, meta.Front.Secrets); err != nil {
+	frontData, err := hideSecrets(frontImg, frontDims, meta.Front.Secrets)
+	if err != nil {
 		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard front: %w", err)
 	}
-	if err := hideSecrets(backImg, backDims, meta.Back.Secrets); err != nil {
+	backData, err := hideSecrets(backImg, backDims, meta.Back.Secrets)
+	if err != nil {
 		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard back: %w", err)
 	}
 
-	frontBytes, err := encodeWebP(frontImg)
+	frontWebp, err := bimg.NewImage(frontData).Convert(bimg.WEBP)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to convert front image to WebP: %w", err)
 	}
-	backBytes, err := encodeWebP(backImg)
+	backWebp, err := bimg.NewImage(backData).Convert(bimg.WEBP)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to convert back image to WebP: %w", err)
 	}
 
 	pc := &types.Postcard{
-		Front: frontBytes,
-		Back:  backBytes,
+		Front: frontWebp,
+		Back:  backWebp,
 		Meta:  meta,
 	}
 
 	return pc, nil
-}
-
-// Ugh, this is dirty
-func encodeWebP(img image.Image) ([]byte, error) {
-	buf := new(bytes.Buffer)
-	if err := png.Encode(buf, img); err != nil {
-		return nil, err
-	}
-
-	return bimg.NewImage(buf.Bytes()).Convert(bimg.WEBP)
 }
 
 func openVagueFilename(dir, prefix, suffix string, extensions ...string) (io.Reader, error) {

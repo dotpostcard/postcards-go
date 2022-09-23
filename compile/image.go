@@ -3,7 +3,6 @@ package compile
 import (
 	"bytes"
 	"fmt"
-	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
@@ -11,22 +10,31 @@ import (
 
 	"github.com/h2non/bimg"
 	"github.com/jphastings/postcard-go/internal/types"
-	"golang.org/x/image/draw"
 )
 
-func readerToImage(r io.Reader) (*image.NRGBA, *types.Dimensions, error) {
+func readerToImage(r io.Reader) (*bimg.Image, *types.Dimensions, error) {
 	buf := new(bytes.Buffer)
 	if _, err := buf.ReadFrom(r); err != nil {
 		return nil, nil, err
 	}
 
-	// TODO: is there a way to do this without converting a billion times??
-	tmp, err := bimg.NewImage(buf.Bytes()).Convert(bimg.WEBP)
+	// TODO: UGH. Only the webp version has the resolution info, but the png version is needed for pixel analysis
+	webpData, err := bimg.NewImage(buf.Bytes()).Convert(bimg.WEBP)
 	if err != nil {
 		return nil, nil, err
 	}
-	vips := bimg.NewImage(tmp)
-	vMeta, err := vips.Metadata()
+	pngData, err := bimg.NewImage(buf.Bytes()).Convert(bimg.PNG)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	img := bimg.NewImage(webpData)
+	size, err := img.Size()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	vMeta, err := img.Metadata()
 	if err != nil {
 		return nil, nil, err
 	}
@@ -46,23 +54,12 @@ func readerToImage(r io.Reader) (*image.NRGBA, *types.Dimensions, error) {
 		return nil, nil, fmt.Errorf("invalid vertical resolution in EXIF data: %v", err)
 	}
 
-	gImg, _, err := image.Decode(buf)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	img, ok := gImg.(*image.NRGBA)
-	if !ok {
-		img = image.NewNRGBA(gImg.Bounds())
-		draw.Copy(img, image.Point{}, gImg, gImg.Bounds(), draw.Over, nil)
-	}
-
 	dims := &types.Dimensions{
-		Width:  resolutionToCentimeters(img.Bounds().Dx(), horizontalRes, scaler),
-		Height: resolutionToCentimeters(img.Bounds().Dy(), verticalRes, scaler),
+		Width:  resolutionToCentimeters(size.Width, horizontalRes, scaler),
+		Height: resolutionToCentimeters(size.Height, verticalRes, scaler),
 	}
 
-	return img, dims, nil
+	return bimg.NewImage(pngData), dims, nil
 }
 
 func resolutionToCentimeters(pixels int, res, scaler *big.Rat) types.Centimeters {

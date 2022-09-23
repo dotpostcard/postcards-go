@@ -1,56 +1,111 @@
 package compile
 
 import (
+	"bytes"
 	"image"
+	"image/color"
+	_ "image/jpeg"
+	"image/png"
 
 	"github.com/fogleman/gg"
+	"github.com/h2non/bimg"
 	"github.com/jphastings/postcard-go/internal/types"
 	"golang.org/x/image/draw"
 )
 
-var pixelatedSize = 0.5 // centimeters
-
-func hideSecrets(img *image.NRGBA, dim *types.Dimensions, secrets []types.Polygon) error {
+func hideSecrets(img *bimg.Image, dim *types.Dimensions, secrets []types.Polygon) ([]byte, error) {
 	if len(secrets) == 0 {
-		return nil
+		return img.Image(), nil
 	}
 
-	obscured := makeObscuredImage(img, dim)
-	mask := makeMask(obscured, secrets)
+	im, _, err := image.Decode(bytes.NewReader(img.Image()))
+	if err != nil {
+		return nil, err
+	}
 
-	draw.Copy(img, image.Point{}, mask, mask.Bounds(), draw.Over, nil)
+	overlay, err := makeSecretOverlay(im, secrets)
+	if err != nil {
+		return nil, err
+	}
 
-	return nil
+	return img.Process(bimg.Options{WatermarkImage: overlay})
 }
 
-func makeObscuredImage(img *image.NRGBA, dim *types.Dimensions) *image.NRGBA {
-	cmW, cmH := dim.AsFloats()
-
-	micro := image.NewNRGBA(image.Rect(0, 0, int(cmW/pixelatedSize), int(cmH/pixelatedSize)))
-	draw.NearestNeighbor.Scale(micro, micro.Rect, img, img.Bounds(), draw.Over, nil)
-
-	obscured := image.NewNRGBA(img.Bounds())
-	draw.CatmullRom.Scale(obscured, obscured.Rect, micro, micro.Bounds(), draw.Over, nil)
-
-	return obscured
-}
-
-func makeMask(obscured *image.NRGBA, secrets []types.Polygon) image.Image {
-	w, h := obscured.Bounds().Dx(), obscured.Bounds().Dy()
-
-	dc := gg.NewContext(w, h)
+func makeSecretOverlay(img image.Image, secrets []types.Polygon) (bimg.WatermarkImage, error) {
+	w, h := img.Bounds().Dx(), img.Bounds().Dy()
+	overlay := image.NewRGBA(img.Bounds())
 
 	for _, pts := range secrets {
+		dc := gg.NewContext(w, h)
+
 		x, y := pts[0].ToPixels(w, h)
+		bounds := image.Rect(int(x), int(y), int(x), int(y))
+
 		dc.MoveTo(x, y)
 		for _, p := range pts[1:] {
 			x, y := p.ToPixels(w, h)
+			stretchBounds(&bounds, int(x), int(y))
+
 			dc.LineTo(x, y)
 		}
 
-		dc.Clip()
-	}
-	dc.DrawImage(obscured, 0, 0)
+		dc.ClipPreserve()
+		dc.DrawImage(img, 0, 0)
 
-	return dc.Image()
+		dc.SetColor(modalColor(dc.Image(), bounds))
+		dc.Fill()
+
+		draw.Copy(overlay, image.Point{}, dc.Image(), img.Bounds(), draw.Over, nil)
+	}
+
+	buf := new(bytes.Buffer)
+	if err := png.Encode(buf, overlay); err != nil {
+		return bimg.WatermarkImage{}, err
+	}
+
+	return bimg.WatermarkImage{
+		Left:    0,
+		Top:     0,
+		Buf:     buf.Bytes(),
+		Opacity: 0,
+	}, nil
+}
+
+func stretchBounds(b *image.Rectangle, x, y int) {
+	if x < b.Min.X {
+		b.Min.X = int(x)
+	} else if x > b.Max.X {
+		b.Max.X = int(x)
+	}
+
+	if y < b.Min.Y {
+		b.Min.Y = int(y)
+	} else if y > b.Max.Y {
+		b.Max.Y = int(y)
+	}
+}
+
+func modalColor(img image.Image, within image.Rectangle) color.Color {
+	counter := make(map[color.Color]uint)
+	var modal color.Color
+	max := uint(0)
+
+	for y := within.Min.Y; y <= within.Max.Y; y++ {
+		for x := within.Min.X; x <= within.Max.X; x++ {
+			c := img.At(x, y)
+			_, _, _, a := c.RGBA()
+			if a < 255 {
+				continue
+			}
+
+			val := counter[c] + 1
+			counter[c] = val
+			if val > max {
+				modal = c
+				max = val
+			}
+		}
+	}
+
+	return modal
 }
