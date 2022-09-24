@@ -24,7 +24,7 @@ var compileCmd = &cobra.Command{
 			return fmt.Errorf("file doesn't exist: %w", err)
 		}
 
-		filename, data, err := compile.FromFiles(path)
+		filename, data, err := compile.Files(path)
 		if err != nil {
 			return err
 		}

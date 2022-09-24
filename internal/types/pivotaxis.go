@@ -9,6 +9,8 @@ const (
 	PivotAxisDownRight
 )
 
+var PivotAxisHuman = []string{"book", "left-hand", "calendar", "right-hand"}
+
 // Heteroriented will be true if the card need to pivot about a diagonal axis for the front and back to remain upright.
 // the negation of this method is always whether the card is homoriented or not.
 func (pa PivotAxis) Heteroriented() bool {

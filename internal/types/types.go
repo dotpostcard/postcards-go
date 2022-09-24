@@ -28,10 +28,10 @@ type Side struct {
 
 type Metadata struct {
 	Location        LatLong     `json:"location"`
-	PivotAxis       PivotAxis   `json:"pivot_axis" yaml:"pivot_axis"`
+	PivotAxis       PivotAxis   `json:"pivot_axis" yaml:"flip"`
 	SentOn          Date        `json:"sent_on" yaml:"sent_on"`
-	Senders         []string    `json:"senders"`
-	Recipients      []string    `json:"recipients"`
+	Sender          string      `json:"sender"`
+	Recipient       string      `json:"recipient"`
 	Front           Side        `json:"front"`
 	Back            Side        `json:"back"`
 	FrontDimensions *Dimensions `json:"front_dimensions_cm" yaml:",omitempty"`

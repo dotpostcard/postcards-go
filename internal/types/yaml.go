@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -103,4 +104,19 @@ func (box SecretBox) intoPolygon(pts *Polygon) error {
 
 func outOfBounds(d float64) bool {
 	return d < 0.0 || d > 1.0
+}
+
+func (pa *PivotAxis) UnmarshalYAML(y *yaml.Node) error {
+	if y.ShortTag() != "!!str" {
+		return fmt.Errorf("pivot axis must be a string")
+	}
+
+	for i, name := range PivotAxisHuman {
+		if y.Value == name {
+			*pa = PivotAxis(i)
+			return nil
+		}
+	}
+
+	return fmt.Errorf("pivot axis must be one of: %s", strings.Join(PivotAxisHuman, ", "))
 }

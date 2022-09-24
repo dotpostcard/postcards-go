@@ -2,6 +2,7 @@ location: 40.41365195362523,-3.6818597177370997
 sent_on: 2022-09-21
 sender: https://www.byjp.me
 recipient: https://github.com/jphastings/postcard-go
+flip: book
 front:
   description:
     en-GB: A polaroid-style framed photo of the _Palacio de Cristal_ in Madrid's Retiro Park in Autumn.

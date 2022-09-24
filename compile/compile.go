@@ -20,8 +20,8 @@ import (
 
 var nameRegex = regexp.MustCompile(`(.+)-(?:front|back|meta)+\.[a-z]+`)
 
-// FromFiles accepts a path to one of the three needed files, attempts to find the others, and provides the conventional name and bytes for the file.
-func FromFiles(part string) (string, []byte, error) {
+// Files accepts a path to one of the three needed files, attempts to find the others, and provides the conventional name and bytes for the file.
+func Files(part string) (string, []byte, error) {
 	dir := filepath.Dir(part)
 	parts := nameRegex.FindStringSubmatch(filepath.Base(part))
 	if len(parts) != 2 {
@@ -42,7 +42,7 @@ func FromFiles(part string) (string, []byte, error) {
 		return "", nil, fmt.Errorf("couldn't load postcard back: %w", err)
 	}
 
-	pc, err := FromReaders(front, back, meta)
+	pc, err := Readers(front, back, meta)
 	if err != nil {
 		return "", nil, err
 	}
@@ -55,8 +55,8 @@ func FromFiles(part string) (string, []byte, error) {
 	return fmt.Sprintf("%s.postcard", prefix), buf.Bytes(), nil
 }
 
-// FromReaders accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
-func FromReaders(frontReader, backReader, metaReader io.Reader) (*types.Postcard, error) {
+// Readers accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
+func Readers(frontReader, backReader, metaReader io.Reader) (*types.Postcard, error) {
 	var meta types.Metadata
 	if err := yaml.NewDecoder(metaReader).Decode(&meta); err != nil {
 		return nil, err
