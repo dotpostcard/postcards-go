@@ -61,3 +61,12 @@ func (d *Dimensions) IsBig() bool {
 
 	return w >= bigPostcardCm || h >= bigPostcardCm
 }
+
+func CmFromString(str string) (Centimeters, error) {
+	var a, b int64
+	if _, err := fmt.Sscanf(str, "%d/%d", &a, &b); err != nil {
+		return nil, err
+	}
+
+	return big.NewRat(a, b), nil
+}

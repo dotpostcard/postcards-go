@@ -38,7 +38,7 @@ func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 
 	meta, err := readMeta(ar)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to read metadata: %v", err)
 	}
 	pc.Meta = meta
 
@@ -46,15 +46,15 @@ func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 		return pc, nil
 	}
 
-	var frontBytes []byte
-	if _, err := ar.Read(frontBytes); err != nil {
-		return nil, err
+	frontBytes, err := readImage(ar, "front")
+	if err != nil {
+		return nil, fmt.Errorf("unable to read front image: %v", err)
 	}
 	pc.Front = frontBytes
 
-	var backBytes []byte
-	if _, err := ar.Read(backBytes); err != nil {
-		return nil, err
+	backBytes, err := readImage(ar, "back")
+	if err != nil {
+		return nil, fmt.Errorf("unable to read back image: %v", err)
 	}
 	pc.Back = backBytes
 
@@ -93,7 +93,7 @@ func readMeta(ar *tar.Reader) (types.Metadata, error) {
 
 	hdr, err := ar.Next()
 	if err != nil {
-		return meta, fmt.Errorf("not a valid tarball: %w", err)
+		return meta, fmt.Errorf("not a valid postcard tarball, missing metadata: %w", err)
 	}
 	if hdr.Name != "meta.json" {
 		return meta, fmt.Errorf("missing metadata json file, got %s first instead", hdr.Name)
@@ -105,4 +105,16 @@ func readMeta(ar *tar.Reader) (types.Metadata, error) {
 	}
 
 	return meta, nil
+}
+
+func readImage(ar *tar.Reader, name string) ([]byte, error) {
+	hdr, err := ar.Next()
+	if err != nil {
+		return nil, fmt.Errorf("not a valid postcard tarball, missing %s: %w", name, err)
+	}
+	if hdr.Name != name+".webp" {
+		return nil, fmt.Errorf("missing %s image file, got %s first instead", name, hdr.Name)
+	}
+
+	return io.ReadAll(ar)
 }
