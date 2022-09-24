@@ -3,7 +3,6 @@ package types
 import (
 	"encoding/json"
 
-	"cloud.google.com/go/civil"
 	"gopkg.in/yaml.v3"
 )
 
@@ -20,12 +19,11 @@ type LatLong struct {
 
 type LocalizedText map[string]string
 type Polygon []Point
-type Date civil.Date
 
 type Side struct {
 	Description   LocalizedText `json:"description"`
 	Transcription string        `json:"transcription"`
-	Secrets       []Polygon     `json:"secrets"`
+	Secrets       []Polygon     `json:"secrets,omitempty"`
 }
 
 type Metadata struct {
@@ -48,8 +46,3 @@ var _ json.Marshaler = (*Polygon)(nil)
 var _ yaml.Marshaler = (*Polygon)(nil)
 var _ json.Unmarshaler = (*Polygon)(nil)
 var _ yaml.Unmarshaler = (*Polygon)(nil)
-
-var _ json.Marshaler = (*Date)(nil)
-var _ yaml.Marshaler = (*Date)(nil)
-var _ json.Unmarshaler = (*Date)(nil)
-var _ yaml.Unmarshaler = (*Date)(nil)

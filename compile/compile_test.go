@@ -14,5 +14,5 @@ func ExampleFromFiles() {
 	}
 
 	fmt.Printf("%s has checksum %x", filename, md5.Sum(data))
-	// Output: hello.postcard has checksum 3b701cc7001611bac858d8b824573c22
+	// Output: hello.postcard has checksum 7a9bc161678b39e2841f7e8f08026119
 }

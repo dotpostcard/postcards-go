@@ -3,7 +3,6 @@ package types
 import (
 	"fmt"
 
-	"cloud.google.com/go/civil"
 	"gopkg.in/yaml.v3"
 )
 
@@ -69,26 +68,6 @@ func (pts *Polygon) UnmarshalYAML(y *yaml.Node) error {
 	default:
 		return fmt.Errorf("unknown secret type: %s", typer.Type)
 	}
-}
-
-func (d Date) MarshalYAML() (interface{}, error) {
-	return civil.Date(d).String(), nil
-}
-
-func (d *Date) UnmarshalYAML(y *yaml.Node) error {
-	switch y.ShortTag() {
-	case "!!timestamp", "!!str":
-		parsed, err := civil.ParseDate(y.Value)
-		if err != nil {
-			return err
-		}
-
-		*d = Date(parsed)
-	default:
-		return fmt.Errorf("invalid date type, expected a string")
-	}
-
-	return nil
 }
 
 func (box SecretBox) intoPolygon(pts *Polygon) error {

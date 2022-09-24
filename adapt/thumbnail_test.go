@@ -10,7 +10,7 @@ import (
 )
 
 func ExampleThumbnailFile() {
-	thumb, err := adapt.ThumbnailFile("fixtures/hello.postcard", 128, 0)
+	thumb, err := adapt.ThumbnailFile("../fixtures/hello.postcard", 128, 0)
 	if err != nil {
 		panic(err)
 	}

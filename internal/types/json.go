@@ -2,8 +2,6 @@ package types
 
 import (
 	"encoding/json"
-
-	"cloud.google.com/go/civil"
 )
 
 func (pts Polygon) MarshalJSON() ([]byte, error) {
@@ -17,26 +15,6 @@ func (pts *Polygon) UnmarshalJSON(b []byte) error {
 	}
 
 	return pts.fromFloats(points)
-}
-
-func (d Date) MarshalJSON() ([]byte, error) {
-	return json.Marshal(civil.Date(d).String())
-}
-
-func (d *Date) UnmarshalJSON(b []byte) error {
-	var dateStr string
-	if err := json.Unmarshal(b, &dateStr); err != nil {
-		return err
-	}
-
-	parsed, err := civil.ParseDate(dateStr)
-	if err != nil {
-		return err
-	}
-
-	*d = Date(parsed)
-
-	return nil
 }
 
 func (ll LatLong) MarshalJSON() ([]byte, error) {
