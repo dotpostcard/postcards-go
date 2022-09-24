@@ -8,7 +8,7 @@ import (
 	"golang.org/x/image/draw"
 )
 
-func Thumbail(pc *types.Postcard, maxWidth, maxHeight int) (image.Image, error) {
+func Thumbnail(pc *types.Postcard, maxWidth, maxHeight int) (image.Image, error) {
 	img, _, err := image.Decode(bytes.NewReader(pc.Front))
 	if err != nil {
 		return nil, err
