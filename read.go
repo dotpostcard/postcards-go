@@ -14,8 +14,8 @@ import (
 )
 
 var (
-	cannotRead = semver.MustParse("1.0.0")
-	warnOnRead = semver.MustParse("0.1.0")
+	cannotRead = Version.IncMajor()
+	warnOnRead = Version.IncMinor()
 )
 
 // Read will parse a Postcard struct from a Reader
@@ -29,11 +29,11 @@ func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 	}
 
 	if cannotRead.LessThan(version) {
-		return nil, fmt.Errorf("postcard is too new to be processed (postcard is v%s, library cannot read v%s or above)", version, cannotRead)
+		return nil, fmt.Errorf("postcard is too new to be processed (postcard is v%s, library cannot read v%v or above)", version, cannotRead)
 	}
 
 	if warnOnRead.LessThan(version) {
-		log.Printf("This postcard (v%s) may have features this library cannot make use of. Upgrade to v%s or greater to remove this warning.", version, warnOnRead)
+		log.Printf("This postcard (v%s) may have features this library cannot make use of. Upgrade to v%v or greater to remove this warning.", version, warnOnRead)
 	}
 
 	meta, err := readMeta(ar)

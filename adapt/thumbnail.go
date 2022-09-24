@@ -1,9 +1,10 @@
-package postcard
+package adapt
 
 import (
 	"bytes"
 	"image"
 
+	"github.com/jphastings/postcard-go"
 	"github.com/jphastings/postcard-go/internal/types"
 	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
@@ -25,7 +26,7 @@ func Thumbnail(pc *types.Postcard, maxWidth, maxHeight int) (image.Image, error)
 
 // ThumbnailFile is a convenience method for retrieving a thumbnail directly on a file using Thumbnail.
 func ThumbnailFile(path string, maxWidth, maxHeight int) (image.Image, error) {
-	pc, err := ReadFile(path, false)
+	pc, err := postcard.ReadFile(path, false)
 	if err != nil {
 		return nil, err
 	}

@@ -1,4 +1,4 @@
-package postcard_test
+package adapt_test
 
 import (
 	"bytes"
@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"image/png"
 
-	"github.com/jphastings/postcard-go"
+	"github.com/jphastings/postcard-go/adapt"
 )
 
 func ExampleThumbnailFile() {
-	thumb, err := postcard.ThumbnailFile("fixtures/hello.postcard", 128, 0)
+	thumb, err := adapt.ThumbnailFile("fixtures/hello.postcard", 128, 0)
 	if err != nil {
 		panic(err)
 	}
