@@ -1,72 +1,47 @@
 package types
 
-import (
-	"fmt"
-	"math"
-	"math/big"
+import "math/big"
+
+// Unit holds conversion factor to SI units
+type Unit struct{ big.Rat }
+type LengthUnit Unit
+type PixelDensityUnit Unit
+
+var (
+	metersIn1Centimeter = *big.NewRat(1, 100)
+	metersIn1Inch       = *big.NewRat(254, 10000)
+
+	UnitMetre      = &LengthUnit{Rat: *big.NewRat(1, 1)}
+	UnitCentimetre = &LengthUnit{Rat: metersIn1Centimeter}
+	UnitInch       = &LengthUnit{Rat: metersIn1Inch}
+
+	UnitPixelsPerMetre      = &PixelDensityUnit{Rat: *big.NewRat(1, 1)}
+	UnitPixelsPerCentimetre = &PixelDensityUnit{Rat: metersIn1Centimeter}
+	UnitPixelsPerInch       = &PixelDensityUnit{Rat: metersIn1Inch}
 )
 
-var bigPostcardCm float64 = 30
-
-type Centimeters *big.Rat
-type Dimensions struct {
-	Width  Centimeters `json:"w"`
-	Height Centimeters `json:"h"`
-}
-
-func (d *Dimensions) AsFloats() (float64, float64) {
-	var wr, hr *big.Rat
-	wr = d.Width
-	hr = d.Height
-	w, _ := wr.Float64()
-	h, _ := hr.Float64()
-	return w, h
-}
-
-func (d *Dimensions) AspectRatio() float64 {
-	w, h := d.AsFloats()
-	return w / h
-}
-
-func (d *Dimensions) SimilarSize(other *Dimensions, heteroriented bool, acceptableDiff float64) bool {
-	if d == nil || other == nil {
-		return false
+func (l *LengthUnit) String() string {
+	switch l {
+	case UnitMetre:
+		return "m"
+	case UnitCentimetre:
+		return "cm"
+	case UnitInch:
+		return "in"
+	default:
+		return "(unknown unit)"
 	}
-
-	var ratio float64
-	if heteroriented {
-		ratio = d.AspectRatio() * other.AspectRatio()
-	} else {
-		ratio = d.AspectRatio() / other.AspectRatio()
-	}
-
-	return math.Abs(1-ratio) <= acceptableDiff
 }
 
-func (d *Dimensions) String() string {
-	if d == nil {
-		return "unknown dimensions"
+func (pd *PixelDensityUnit) String() string {
+	switch pd {
+	case UnitPixelsPerMetre:
+		return "ppm"
+	case UnitPixelsPerCentimetre:
+		return "ppcm"
+	case UnitPixelsPerInch:
+		return "ppi"
+	default:
+		return "(unknown unit)"
 	}
-
-	w, h := d.AsFloats()
-	return fmt.Sprintf("%.1fcm x %.1fcm", w, h)
-}
-
-func (d *Dimensions) IsBig() bool {
-	if d == nil {
-		return false
-	}
-
-	w, h := d.AsFloats()
-
-	return w >= bigPostcardCm || h >= bigPostcardCm
-}
-
-func CmFromString(str string) (Centimeters, error) {
-	var a, b int64
-	if _, err := fmt.Sscanf(str, "%d/%d", &a, &b); err != nil {
-		return nil, err
-	}
-
-	return big.NewRat(a, b), nil
 }

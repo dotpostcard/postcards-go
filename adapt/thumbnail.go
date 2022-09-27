@@ -7,6 +7,9 @@ import (
 	"github.com/jphastings/postcard-go"
 	"github.com/jphastings/postcard-go/internal/types"
 	"golang.org/x/image/draw"
+
+	// Use this library rather than the one used in compile, as the
+	// golang.org/x/image package is already used (for draw)
 	_ "golang.org/x/image/webp"
 )
 

@@ -34,7 +34,7 @@ func TestReaders(t *testing.T) {
 	back, err := os.Open("../fixtures/hello-back.png")
 	checkBadSetup(t, err)
 
-	pc, err := compile.Readers(front, back, meta)
+	pc, err := compile.Readers(front, back, compile.MetadataFromYaml(meta))
 	if err != nil {
 		t.Error(err)
 	}

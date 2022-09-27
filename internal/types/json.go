@@ -30,26 +30,15 @@ func (ll *LatLong) UnmarshalJSON(b []byte) error {
 	return ll.fromFloats(floats...)
 }
 
-func (dim *Dimensions) UnmarshalJSON(b []byte) error {
-	var stringDim struct {
-		W string
-		H string
-	}
-	if err := json.Unmarshal(b, &stringDim); err != nil {
+func (s Size) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
+}
+
+func (s *Size) UnmarshalJSON(b []byte) error {
+	var str string
+	if err := json.Unmarshal(b, &str); err != nil {
 		return err
 	}
 
-	w, err := CmFromString(stringDim.W)
-	if err != nil {
-		return err
-	}
-	h, err := CmFromString(stringDim.H)
-	if err != nil {
-		return err
-	}
-
-	dim.Width = w
-	dim.Height = h
-
-	return nil
+	return s.fromString(str)
 }

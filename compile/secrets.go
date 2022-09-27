@@ -1,41 +1,27 @@
 package compile
 
 import (
-	"bytes"
 	"image"
 	"image/color"
 	_ "image/jpeg"
-	"image/png"
 
 	"github.com/fogleman/gg"
-	"github.com/h2non/bimg"
 	"github.com/jphastings/postcard-go/internal/types"
 	"golang.org/x/image/draw"
 )
 
-func hideSecrets(img *bimg.Image, dim *types.Dimensions, secrets []types.Polygon) ([]byte, error) {
+func hideSecrets(img image.Image, secrets []types.Polygon) (image.Image, error) {
 	if len(secrets) == 0 {
-		return img.Image(), nil
+		return img, nil
 	}
 
-	im, _, err := image.Decode(bytes.NewReader(img.Image()))
-	if err != nil {
-		return nil, err
-	}
-
-	overlay, err := makeSecretOverlay(im, secrets)
-	if err != nil {
-		return nil, err
-	}
-
-	// TODO: does this maintain the original resolutions?
-	// I need tighter control over what metadata is written
-	return img.Process(bimg.Options{WatermarkImage: overlay})
+	return applySecretOverlay(img, secrets)
 }
 
-func makeSecretOverlay(img image.Image, secrets []types.Polygon) (bimg.WatermarkImage, error) {
+func applySecretOverlay(img image.Image, secrets []types.Polygon) (image.Image, error) {
 	w, h := img.Bounds().Dx(), img.Bounds().Dy()
 	overlay := image.NewRGBA(img.Bounds())
+	draw.Copy(overlay, image.Point{}, img, img.Bounds(), draw.Over, nil)
 
 	for _, pts := range secrets {
 		dc := gg.NewContext(w, h)
@@ -60,17 +46,7 @@ func makeSecretOverlay(img image.Image, secrets []types.Polygon) (bimg.Watermark
 		draw.Copy(overlay, image.Point{}, dc.Image(), img.Bounds(), draw.Over, nil)
 	}
 
-	buf := new(bytes.Buffer)
-	if err := png.Encode(buf, overlay); err != nil {
-		return bimg.WatermarkImage{}, err
-	}
-
-	return bimg.WatermarkImage{
-		Left:    0,
-		Top:     0,
-		Buf:     buf.Bytes(),
-		Opacity: 0,
-	}, nil
+	return overlay, nil
 }
 
 func stretchBounds(b *image.Rectangle, x, y int) {

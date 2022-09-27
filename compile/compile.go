@@ -3,6 +3,7 @@ package compile
 import (
 	"bytes"
 	"fmt"
+	"image"
 	"io"
 	"log"
 	"os"
@@ -11,11 +12,12 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/h2non/bimg"
 	"github.com/jphastings/postcard-go"
 	"github.com/jphastings/postcard-go/internal/types"
 	"github.com/jphastings/postcard-go/validate"
-	"gopkg.in/yaml.v3"
+	"github.com/kolesa-team/go-webp/encoder"
+	"github.com/kolesa-team/go-webp/webp"
+	"github.com/kolesa-team/goexiv"
 )
 
 var nameRegex = regexp.MustCompile(`(.+)-(?:front|back|meta)+\.[a-z]+`)
@@ -42,7 +44,7 @@ func Files(part string) (string, []byte, error) {
 		return "", nil, fmt.Errorf("couldn't load postcard back: %w", err)
 	}
 
-	pc, err := Readers(front, back, meta)
+	pc, err := Readers(front, back, MetadataFromYaml(meta))
 	if err != nil {
 		return "", nil, err
 	}
@@ -56,45 +58,45 @@ func Files(part string) (string, []byte, error) {
 }
 
 // Readers accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
-func Readers(frontReader, backReader, metaReader io.Reader) (*types.Postcard, error) {
-	var meta types.Metadata
-	if err := yaml.NewDecoder(metaReader).Decode(&meta); err != nil {
-		return nil, err
+func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Postcard, error) {
+	meta, err := mp.Metadata()
+	if err != nil {
+		return nil, fmt.Errorf("unable to obtain the metadata: %w", err)
 	}
 
-	frontImg, frontDims, err := readerToImage(frontReader)
+	frontRaw, frontDims, err := readerToImage(frontReader)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse image for front image: %w", err)
 	}
-	backImg, backDims, err := readerToImage(backReader)
+	backRaw, backDims, err := readerToImage(backReader)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse image for back image: %w", err)
 	}
 
 	meta.FrontDimensions = frontDims
 
-	if err := validate.Dimensions(&meta, frontImg, backImg, frontDims, backDims); err != nil {
+	if err := validate.Dimensions(&meta, frontRaw.Bounds(), backRaw.Bounds(), frontDims, backDims); err != nil {
 		return nil, err
 	}
 
-	if meta.FrontDimensions.IsBig() {
-		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", meta.FrontDimensions)
+	if isOversized(frontDims) {
+		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", frontDims)
 	}
 
-	frontData, err := hideSecrets(frontImg, frontDims, meta.Front.Secrets)
+	frontImg, err := hideSecrets(frontRaw, meta.Front.Secrets)
 	if err != nil {
 		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard front: %w", err)
 	}
-	backData, err := hideSecrets(backImg, backDims, meta.Back.Secrets)
+	backImg, err := hideSecrets(backRaw, meta.Back.Secrets)
 	if err != nil {
 		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard back: %w", err)
 	}
 
-	frontWebp, err := bimg.NewImage(frontData).Convert(bimg.WEBP)
+	frontWebp, err := encodeWebp(frontImg, frontDims)
 	if err != nil {
 		return nil, fmt.Errorf("unable to convert front image to WebP: %w", err)
 	}
-	backWebp, err := bimg.NewImage(backData).Convert(bimg.WEBP)
+	backWebp, err := encodeWebp(backImg, backDims)
 	if err != nil {
 		return nil, fmt.Errorf("unable to convert back image to WebP: %w", err)
 	}
@@ -116,4 +118,37 @@ func openVagueFilename(dir, prefix, suffix string, extensions ...string) (io.Rea
 		}
 	}
 	return nil, fmt.Errorf("no file '%s-%s.{%s}' in %s", prefix, suffix, strings.Join(extensions, ","), dir)
+}
+
+var webpEncoderOpts *encoder.Options
+
+func init() {
+	opts, err := encoder.NewLossyEncoderOptions(encoder.PresetDefault, 85)
+	if err != nil {
+		panic(err)
+	}
+	webpEncoderOpts = opts
+}
+
+// encodeWebp turns a the image.Image into bytes in Webp format. Currently does *not* write the resolution
+// bytes into exif tags, as I can't find a good library for completing this (goexiv doesn't support writing
+// rational numbers, which XResolution and YResolution are.)
+func encodeWebp(img image.Image, size types.Size) ([]byte, error) {
+	data := new(bytes.Buffer)
+	if err := webp.Encode(data, img, webpEncoderOpts); err != nil {
+		return nil, err
+	}
+
+	goIm, err := goexiv.OpenBytes(data.Bytes())
+	if err != nil {
+		return nil, err
+	}
+
+	return goIm.GetBytes(), nil
+}
+
+var oversized float64 = 30 // Centimetres
+
+func isOversized(s types.Size) bool {
+	return s.Width.In(types.UnitCentimetre) >= oversized || s.Height.In(types.UnitCentimetre) >= oversized
 }
