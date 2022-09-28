@@ -19,7 +19,8 @@ The package at the root of this repo handles the 'steady state' interaction with
 
 A `.postcard` file is a tarball with 4 files (in the following order):
 
-1. A `VERSION` file containing the semantic version of the library that created it.
+1. A `postcard-vX.Y.Z` empty file, where `X.Y.Z` in the filename is the semantic version of the library that created it.
+  - This means that the first 8 bytes of a `.postcard` file are always `postcard` (ie. `70 6f 73 74 63 61 72 64`)
 2. A JSON metadata file (see `types.go` for spec)
 3. A WebP image file representing the front of the postcard.
   - Physical dimensions should be correctly set (ie. DPI)
