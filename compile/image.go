@@ -7,8 +7,8 @@ import (
 	_ "image/png"
 	"io"
 
-	"github.com/jphastings/postcard-go/internal/types"
-	"github.com/jphastings/postcard-go/pkg/resolution"
+	"github.com/jphastings/postcards-go/internal/types"
+	"github.com/jphastings/postcards-go/pkg/resolution"
 )
 
 func readerToImage(r io.Reader) (image.Image, types.Size, error) {

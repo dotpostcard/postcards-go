@@ -7,15 +7,15 @@ A `.postcard` file represents a physical postcard digitally; a double-sided imag
 The contained CLI tool, `postcarder`, is able to compile front & back images, and a metadata file into a `.postcard` file:
 
 ```bash
-$ go install github.com/jphastings/postcard-go/cmd/postcarder@latest
-$ postcarder compile fixtures/hello-front.jpg
+go install github.com/jphastings/postcards-go/cmd/postcarder@latest
+postcarder compile fixtures/hello-front.jpg
 ```
 
-### Implementation notes
+## Implementation notes
 
 The package at the root of this repo handles the 'steady state' interaction with postcard files — eg. readinging & writing — and have extremely limited dependencies. The packages one level deeper (eg. `compile` and `validate`) hold functionality that needs complex dependencies (eg. a capable image processing library), except for `internal`, which holds packages that are common dependencies.
 
-### File format notes
+## File format notes
 
 A `.postcard` file is a tarball with 4 files (in the following order):
 

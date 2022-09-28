@@ -12,9 +12,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jphastings/postcard-go"
-	"github.com/jphastings/postcard-go/internal/types"
-	"github.com/jphastings/postcard-go/validate"
+	"github.com/jphastings/postcards-go"
+	"github.com/jphastings/postcards-go/internal/types"
+	"github.com/jphastings/postcards-go/validate"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"github.com/kolesa-team/goexiv"
@@ -50,7 +50,7 @@ func Files(part string) (string, []byte, error) {
 	}
 
 	buf := new(bytes.Buffer)
-	if err := postcard.Write(pc, buf); err != nil {
+	if err := postcards.Write(pc, buf); err != nil {
 		return "", nil, err
 	}
 

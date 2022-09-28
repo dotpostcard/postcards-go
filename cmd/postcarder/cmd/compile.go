@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jphastings/postcard-go/compile"
+	"github.com/jphastings/postcards-go/compile"
 	"github.com/spf13/cobra"
 )
 

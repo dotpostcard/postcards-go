@@ -6,7 +6,7 @@ import (
 	_ "image/jpeg"
 
 	"github.com/fogleman/gg"
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go/internal/types"
 	"golang.org/x/image/draw"
 )
 

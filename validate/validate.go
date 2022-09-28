@@ -5,7 +5,7 @@ import (
 	"image"
 	"math"
 
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go/internal/types"
 )
 
 const (

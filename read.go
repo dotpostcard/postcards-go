@@ -1,4 +1,4 @@
-package postcard
+package postcards
 
 import (
 	"archive/tar"
@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/Masterminds/semver"
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go/internal/types"
 )
 
 var (

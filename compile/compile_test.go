@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/jphastings/postcard-go/compile"
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go/compile"
+	"github.com/jphastings/postcards-go/internal/types"
 )
 
 func ExampleFiles() {
@@ -49,7 +49,7 @@ func TestReaders(t *testing.T) {
 		{"Latitude", pc.Meta.Location.Latitude, 40.41365195362523},
 		{"Longitude", pc.Meta.Location.Longitude, -3.6818597177370997},
 		{"Sender", pc.Meta.Sender, "https://www.byjp.me"},
-		{"Recipient", pc.Meta.Recipient, "https://github.com/jphastings/postcard-go"},
+		{"Recipient", pc.Meta.Recipient, "https://github.com/jphastings/postcards-go"},
 		{"Pivot axis", pc.Meta.PivotAxis, types.PivotAxisUp},
 		{"Sent date", pc.Meta.SentOn, types.Date("2022-09-21")},
 		{"Front description", pc.Meta.Front.Description["en-GB"], "A polaroid-style framed photo of the _Palacio de Cristal_ in Madrid's Retiro Park in Autumn."},

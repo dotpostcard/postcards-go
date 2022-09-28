@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"image/png"
 
-	"github.com/jphastings/postcard-go/adapt"
+	"github.com/jphastings/postcards-go/adapt"
 )
 
 func ExampleThumbnailFile() {

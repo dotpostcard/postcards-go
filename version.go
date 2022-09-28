@@ -1,4 +1,4 @@
-package postcard
+package postcards
 
 import (
 	_ "embed"

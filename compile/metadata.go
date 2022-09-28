@@ -3,7 +3,7 @@ package compile
 import (
 	"io"
 
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go/internal/types"
 	"gopkg.in/yaml.v3"
 )
 

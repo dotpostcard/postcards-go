@@ -1,4 +1,4 @@
-module github.com/jphastings/postcard-go
+module github.com/jphastings/postcards-go
 
 go 1.19
 

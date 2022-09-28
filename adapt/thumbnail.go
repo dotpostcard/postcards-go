@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"image"
 
-	"github.com/jphastings/postcard-go"
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go"
+	"github.com/jphastings/postcards-go/internal/types"
 	"golang.org/x/image/draw"
 
 	// Use this library rather than the one used in compile, as the
@@ -29,7 +29,7 @@ func Thumbnail(pc *types.Postcard, maxWidth, maxHeight int) (image.Image, error)
 
 // ThumbnailFile is a convenience method for retrieving a thumbnail directly on a file using Thumbnail.
 func ThumbnailFile(path string, maxWidth, maxHeight int) (image.Image, error) {
-	pc, err := postcard.ReadFile(path, false)
+	pc, err := postcards.ReadFile(path, false)
 	if err != nil {
 		return nil, err
 	}

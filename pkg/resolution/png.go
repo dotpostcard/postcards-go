@@ -6,7 +6,7 @@ import (
 	"math/big"
 
 	pngstructure "github.com/dsoprea/go-png-image-structure"
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go/internal/types"
 )
 
 const (

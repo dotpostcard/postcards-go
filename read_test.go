@@ -1,13 +1,13 @@
-package postcard_test
+package postcards_test
 
 import (
 	"testing"
 
-	"github.com/jphastings/postcard-go"
+	"github.com/jphastings/postcards-go"
 )
 
 func TestReadFile(t *testing.T) {
-	_, err := postcard.ReadFile("fixtures/hello.postcard", false)
+	_, err := postcards.ReadFile("fixtures/hello.postcard", false)
 	if err != nil {
 		t.Error(err)
 	}

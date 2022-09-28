@@ -3,7 +3,7 @@ package resolution
 import (
 	"fmt"
 
-	"github.com/jphastings/postcard-go/internal/types"
+	"github.com/jphastings/postcards-go/internal/types"
 )
 
 var readers = []struct {
