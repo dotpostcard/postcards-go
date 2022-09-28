@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"image"
 
-	"github.com/jphastings/postcards-go"
-	"github.com/jphastings/postcards-go/internal/types"
+	"github.com/dotpostcard/postcards-go"
+	"github.com/dotpostcard/postcards-go/internal/types"
 	"golang.org/x/image/draw"
 
 	// Use this library rather than the one used in compile, as the

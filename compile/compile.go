@@ -12,9 +12,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jphastings/postcards-go"
-	"github.com/jphastings/postcards-go/internal/types"
-	"github.com/jphastings/postcards-go/validate"
+	"github.com/dotpostcard/postcards-go"
+	"github.com/dotpostcard/postcards-go/internal/types"
+	"github.com/dotpostcard/postcards-go/validate"
 	"github.com/kolesa-team/go-webp/encoder"
 	"github.com/kolesa-team/go-webp/webp"
 	"github.com/kolesa-team/goexiv"

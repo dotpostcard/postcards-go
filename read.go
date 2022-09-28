@@ -9,7 +9,7 @@ import (
 	"os"
 
 	"github.com/Masterminds/semver"
-	"github.com/jphastings/postcards-go/internal/types"
+	"github.com/dotpostcard/postcards-go/internal/types"
 )
 
 var (

@@ -1,7 +1,7 @@
 location: 40.41365195362523,-3.6818597177370997
 sent_on: 2022-09-21
 sender: https://www.byjp.me
-recipient: https://github.com/jphastings/postcards-go
+recipient: https://github.com/dotpostcard/postcards-go
 flip: book
 front:
   description:

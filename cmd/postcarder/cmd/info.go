@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/jphastings/postcards-go"
+	"github.com/dotpostcard/postcards-go"
 	"github.com/spf13/cobra"
 )
 

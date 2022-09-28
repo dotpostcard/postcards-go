@@ -5,8 +5,8 @@ import (
 	"image/color"
 	_ "image/jpeg"
 
+	"github.com/dotpostcard/postcards-go/internal/types"
 	"github.com/fogleman/gg"
-	"github.com/jphastings/postcards-go/internal/types"
 	"golang.org/x/image/draw"
 )
 

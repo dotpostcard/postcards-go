@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/dotpostcard/postcards-go/internal/types"
 	pngstructure "github.com/dsoprea/go-png-image-structure"
-	"github.com/jphastings/postcards-go/internal/types"
 )
 
 const (

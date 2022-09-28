@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/jphastings/postcards-go/internal/types"
+	"github.com/dotpostcard/postcards-go/internal/types"
 	"github.com/kolesa-team/goexiv"
 )
 

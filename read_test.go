@@ -3,7 +3,7 @@ package postcards_test
 import (
 	"testing"
 
-	"github.com/jphastings/postcards-go"
+	"github.com/dotpostcard/postcards-go"
 )
 
 func TestReadFile(t *testing.T) {

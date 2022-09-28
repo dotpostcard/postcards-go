@@ -8,7 +8,7 @@ import (
 	"io"
 
 	"github.com/Masterminds/semver"
-	"github.com/jphastings/postcards-go/internal/types"
+	"github.com/dotpostcard/postcards-go/internal/types"
 )
 
 // Write creates the postcard file tarball from the in-memory object, writing to the given Writer
