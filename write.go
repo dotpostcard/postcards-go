@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/Masterminds/semver"
@@ -32,19 +33,12 @@ func Write(pc *types.Postcard, w io.Writer) error {
 }
 
 func writeVersion(ar *tar.Writer, ver *semver.Version) error {
-	v := []byte(ver.String())
-
 	hdr := &tar.Header{
-		Name: "VERSION",
+		Name: fmt.Sprintf("postcard-v%s", ver.String()),
 		Mode: 0444,
-		Size: int64(len(v)),
+		Size: 0,
 	}
-	if err := ar.WriteHeader(hdr); err != nil {
-		return err
-	}
-
-	_, err := ar.Write(v)
-	return err
+	return ar.WriteHeader(hdr)
 }
 
 func writeMeta(ar *tar.Writer, meta types.Metadata) error {

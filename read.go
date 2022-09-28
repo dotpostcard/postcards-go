@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/Masterminds/semver"
 	"github.com/jphastings/postcard-go/internal/types"
@@ -76,16 +75,11 @@ func readVersion(ar *tar.Reader) (*semver.Version, error) {
 	if err != nil {
 		return nil, fmt.Errorf("not a valid postcard archive: %w", err)
 	}
-	if hdr.Name != "VERSION" {
-		return nil, fmt.Errorf("missing VERSION file, got %s first instead", hdr.Name)
+	if len(hdr.Name) <= 10 || hdr.Name[0:10] != "postcard-v" {
+		return nil, fmt.Errorf("missing version information, got %s instead", hdr.Name)
 	}
 
-	buf := new(strings.Builder)
-	if _, err := io.Copy(buf, ar); err != nil {
-		return nil, fmt.Errorf("unable to read version data: %w", err)
-	}
-
-	return semver.NewVersion(buf.String())
+	return semver.NewVersion(hdr.Name[10:])
 }
 
 func readMeta(ar *tar.Reader) (types.Metadata, error) {
@@ -96,7 +90,7 @@ func readMeta(ar *tar.Reader) (types.Metadata, error) {
 		return meta, fmt.Errorf("not a valid postcard tarball, missing metadata: %w", err)
 	}
 	if hdr.Name != "meta.json" {
-		return meta, fmt.Errorf("missing metadata json file, got %s first instead", hdr.Name)
+		return meta, fmt.Errorf("missing metadata json file, got %s instead", hdr.Name)
 	}
 
 	d := json.NewDecoder(ar)
@@ -113,7 +107,7 @@ func readImage(ar *tar.Reader, name string) ([]byte, error) {
 		return nil, fmt.Errorf("not a valid postcard tarball, missing %s: %w", name, err)
 	}
 	if hdr.Name != name+".webp" {
-		return nil, fmt.Errorf("missing %s image file, got %s first instead", name, hdr.Name)
+		return nil, fmt.Errorf("missing %s image file, got %s instead", name, hdr.Name)
 	}
 
 	return io.ReadAll(ar)

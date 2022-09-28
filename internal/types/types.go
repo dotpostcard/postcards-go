@@ -21,19 +21,19 @@ type LocalizedText map[string]string
 type Polygon []Point
 
 type Side struct {
-	Description   LocalizedText `json:"description"`
-	Transcription string        `json:"transcription"`
+	Description   LocalizedText `json:"description,omitempty"`
+	Transcription string        `json:"transcription,omitempty"`
 	Secrets       []Polygon     `json:"secrets,omitempty"`
 }
 
 type Metadata struct {
-	Location        LatLong   `json:"location"`
+	Location        LatLong   `json:"location,omitempty"`
 	PivotAxis       PivotAxis `json:"pivot_axis" yaml:"flip"`
-	SentOn          Date      `json:"sent_on" yaml:"sent_on"`
-	Sender          string    `json:"sender"`
-	Recipient       string    `json:"recipient"`
-	Front           Side      `json:"front"`
-	Back            Side      `json:"back"`
+	SentOn          Date      `json:"sent_on,omitempty" yaml:"sent_on"`
+	Sender          string    `json:"sender,omitempty"`
+	Recipient       string    `json:"recipient,omitempty"`
+	Front           Side      `json:"front,omitempty"`
+	Back            Side      `json:"back,omitempty"`
 	FrontDimensions Size      `json:"front_size" yaml:",omitempty"`
 }
 
