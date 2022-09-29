@@ -17,17 +17,15 @@ The package at the root of this repo handles the 'steady state' interaction with
 
 ## File format notes
 
-A `.postcard` file is a tarball with 4 files (in the following order):
+A `.postcard` file is a 4 part file with the following parts. The first is fixed length, the others start with a uint32 describing their length. All integers are big endian.
 
-1. A `postcard-vX.Y.Z` empty file, where `X.Y.Z` in the filename is the semantic version of the library that created it.
-  - This means that the first 8 bytes of a `.postcard` file are always `postcard` (ie. `70 6f 73 74 63 61 72 64`)
-2. A JSON metadata file (see `types.go` for spec)
-3. A WebP image file representing the front of the postcard.
-  - Physical dimensions should be correctly set (ie. DPI)
+1. The string `postcard`, followed by three uint8 bytes representing the `X.Y.Z` of the version number of the library that created the postcard (in that order).
+2. (a uint32 defining the length of this section and) JSON for the postcard metadata (see `types.go` for spec)
+3. (a uint32 defining the length of this section and) a WebP image file representing the front of the postcard.
   - Ideally with a transparent background
     - Hopefully the `postcarder` tool will one day help with auto-removal of the background of scanned postcards
-4. An image for the back of the postcard (identical in format to 3)
+4. (a uint32 defining the length of this section and) a WebP image for the back of the postcard (identical in format to 3)
   - The physical dimensions should be within 1% of physical dimensions of the front of the postcard. This allows for different resolutions on front & back
   - Ideally co-registered, so flipping about the verical or horizontal axis (for homoriented postcards) or about one of the diagonal axes (for heteroriented postcards) have the same or extremely similar outlines
 
-The ordering of these files in the tarball matters so version and metadata can be assessed early as larger postcard files are being streamed.
+The ordering of these chunks is set so version and metadata can be assessed early as larger postcard files are being streamed.

@@ -1,30 +1,33 @@
 package postcards
 
 import (
-	"archive/tar"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 	"os"
 
-	"github.com/Masterminds/semver"
 	"github.com/dotpostcard/postcards-go/internal/types"
 )
 
+var magicBytes = []byte("postcard")
+
 var (
-	cannotRead = Version.IncMajor()
-	warnOnRead = Version.IncMinor()
+	cannotRead = types.Version{Major: Version.Major + 1, Minor: Version.Minor, Patch: Version.Patch}
+	warnOnRead = types.Version{Major: Version.Major, Minor: Version.Minor + 1, Patch: Version.Patch}
 )
 
 // Read will parse a Postcard struct from a Reader
 func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 	pc := &types.Postcard{}
-	ar := tar.NewReader(r)
 
-	version, err := readVersion(ar)
+	if !hasMagicBytes(r) {
+		return nil, fmt.Errorf("not valid postcard file")
+	}
+
+	version, err := readVersion(r)
 	if err != nil {
-		return nil, fmt.Errorf("unable to read version file: %w", err)
+		return nil, fmt.Errorf("unable to read version data: %w", err)
 	}
 
 	if cannotRead.LessThan(version) {
@@ -35,7 +38,7 @@ func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 		log.Printf("This postcard (v%s) may have features this library cannot make use of. Upgrade to v%v or greater to remove this warning.", version, warnOnRead)
 	}
 
-	meta, err := readMeta(ar)
+	meta, err := readMeta(r)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read metadata: %v", err)
 	}
@@ -45,13 +48,13 @@ func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 		return pc, nil
 	}
 
-	frontBytes, err := readImage(ar, "front")
+	frontBytes, err := readImage(r)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read front image: %v", err)
 	}
 	pc.Front = frontBytes
 
-	backBytes, err := readImage(ar, "back")
+	backBytes, err := readImage(r)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read back image: %v", err)
 	}
@@ -70,30 +73,52 @@ func ReadFile(path string, metaOnly bool) (*types.Postcard, error) {
 	return Read(f, metaOnly)
 }
 
-func readVersion(ar *tar.Reader) (*semver.Version, error) {
-	hdr, err := ar.Next()
-	if err != nil {
-		return nil, fmt.Errorf("not a valid postcard archive: %w", err)
-	}
-	if len(hdr.Name) <= 10 || hdr.Name[0:10] != "postcard-v" {
-		return nil, fmt.Errorf("missing version information, got %s instead", hdr.Name)
+func hasMagicBytes(r io.Reader) bool {
+	b := make([]byte, len(magicBytes))
+	if n, err := r.Read(b); err != nil || n < len(magicBytes) {
+		return false
 	}
 
-	return semver.NewVersion(hdr.Name[10:])
+	for i := 0; i < len(magicBytes); i++ {
+		if b[i] != magicBytes[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
-func readMeta(ar *tar.Reader) (types.Metadata, error) {
+func readVersion(r io.Reader) (types.Version, error) {
+	b := make([]byte, 3)
+	if n, err := r.Read(b); err != nil {
+		return types.Version{}, err
+	} else if n < 3 {
+		return types.Version{}, fmt.Errorf("not valid postcard version number")
+	}
+
+	return types.Version{Major: b[0], Minor: b[1], Patch: b[2]}, nil
+}
+
+func readSize(r io.Reader) (uint32, error) {
+	b := make([]byte, 4)
+	if n, err := r.Read(b); err != nil {
+		return 0, err
+	} else if n < 2 {
+		return 0, io.EOF
+	}
+
+	return byteOrder.Uint32(b), nil
+}
+
+func readMeta(r io.Reader) (types.Metadata, error) {
 	var meta types.Metadata
 
-	hdr, err := ar.Next()
+	size, err := readSize(r)
 	if err != nil {
-		return meta, fmt.Errorf("not a valid postcard tarball, missing metadata: %w", err)
-	}
-	if hdr.Name != "meta.json" {
-		return meta, fmt.Errorf("missing metadata json file, got %s instead", hdr.Name)
+		return meta, err
 	}
 
-	d := json.NewDecoder(ar)
+	d := json.NewDecoder(&io.LimitedReader{R: r, N: int64(size)})
 	if err := d.Decode(&meta); err != nil {
 		return meta, err
 	}
@@ -101,14 +126,11 @@ func readMeta(ar *tar.Reader) (types.Metadata, error) {
 	return meta, nil
 }
 
-func readImage(ar *tar.Reader, name string) ([]byte, error) {
-	hdr, err := ar.Next()
+func readImage(r io.Reader) ([]byte, error) {
+	size, err := readSize(r)
 	if err != nil {
-		return nil, fmt.Errorf("not a valid postcard tarball, missing %s: %w", name, err)
-	}
-	if hdr.Name != name+".webp" {
-		return nil, fmt.Errorf("missing %s image file, got %s instead", name, hdr.Name)
+		return nil, err
 	}
 
-	return io.ReadAll(ar)
+	return io.ReadAll(&io.LimitedReader{R: r, N: int64(size)})
 }

@@ -54,9 +54,14 @@ func (s Size) String() string {
 }
 
 func (s *Size) fromString(str string) error {
-	if _, err := fmt.Sscanf(str, "%fcm x %fcm", s.Width.Count, s.Height.Count); err != nil {
+	var w, h big.Rat
+	if _, err := fmt.Sscanf(str, "%fcm x %fcm", &w, &h); err != nil {
 		return err
 	}
+
+	s.Width.Count = &w
+	s.Height.Count = &h
+
 	s.Width.Unit = UnitCentimetre
 	s.Height.Unit = UnitCentimetre
 	return nil

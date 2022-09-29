@@ -1,47 +1,49 @@
 package postcards
 
 import (
-	"archive/tar"
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"io"
 
-	"github.com/Masterminds/semver"
 	"github.com/dotpostcard/postcards-go/internal/types"
 )
 
+var byteOrder = binary.BigEndian
+
 // Write creates the postcard file tarball from the in-memory object, writing to the given Writer
 func Write(pc *types.Postcard, w io.Writer) error {
-	ar := tar.NewWriter(w)
-	defer ar.Close()
-
-	if err := writeVersion(ar, Version); err != nil {
+	if err := writeVersion(w, Version); err != nil {
 		return err
 	}
-	if err := writeMeta(ar, pc.Meta); err != nil {
+	if err := writeMeta(w, pc.Meta); err != nil {
 		return err
 	}
-	if err := writeImage(ar, pc.Front, "front"); err != nil {
+	if err := writeImage(w, pc.Front, "front"); err != nil {
 		return err
 	}
-	if err := writeImage(ar, pc.Back, "back"); err != nil {
+	if err := writeImage(w, pc.Back, "back"); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func writeVersion(ar *tar.Writer, ver *semver.Version) error {
-	hdr := &tar.Header{
-		Name: fmt.Sprintf("postcard-v%s", ver.String()),
-		Mode: 0444,
-		Size: 0,
+func writeVersion(w io.Writer, ver types.Version) error {
+	if _, err := w.Write(magicBytes); err != nil {
+		return err
 	}
-	return ar.WriteHeader(hdr)
+
+	if err := binary.Write(w, byteOrder, ver.Major); err != nil {
+		return err
+	}
+	if err := binary.Write(w, byteOrder, ver.Minor); err != nil {
+		return err
+	}
+	return binary.Write(w, byteOrder, ver.Patch)
 }
 
-func writeMeta(ar *tar.Writer, meta types.Metadata) error {
+func writeMeta(w io.Writer, meta types.Metadata) error {
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
 	enc.SetEscapeHTML(false)
@@ -50,29 +52,19 @@ func writeMeta(ar *tar.Writer, meta types.Metadata) error {
 		return err
 	}
 
-	hdr := &tar.Header{
-		Name: "meta.json",
-		Mode: 0444,
-		Size: int64(buf.Len()),
-	}
-	if err := ar.WriteHeader(hdr); err != nil {
+	if err := binary.Write(w, byteOrder, int32(buf.Len())); err != nil {
 		return err
 	}
 
-	_, err := ar.Write(buf.Bytes())
+	_, err := w.Write(buf.Bytes())
 	return err
 }
 
-func writeImage(ar *tar.Writer, img []byte, name string) error {
-	hdr := &tar.Header{
-		Name: name + ".webp",
-		Mode: 0444,
-		Size: int64(len(img)),
-	}
-	if err := ar.WriteHeader(hdr); err != nil {
+func writeImage(w io.Writer, img []byte, name string) error {
+	if err := binary.Write(w, byteOrder, int32(len(img))); err != nil {
 		return err
 	}
 
-	_, wErr := ar.Write(img)
-	return wErr
+	_, err := w.Write(img)
+	return err
 }

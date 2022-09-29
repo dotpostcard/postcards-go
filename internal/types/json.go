@@ -39,6 +39,5 @@ func (s *Size) UnmarshalJSON(b []byte) error {
 	if err := json.Unmarshal(b, &str); err != nil {
 		return err
 	}
-
 	return s.fromString(str)
 }
