@@ -1,31 +1,29 @@
 package types
 
-type PivotAxis uint
+type Flip string
 
 const (
-	PivotAxisUp PivotAxis = iota
-	PivotAxisUpRight
-	PivotAxisRight
-	PivotAxisDownRight
+	FlipBook      Flip = "book"
+	FlipLeftHand  Flip = "left-hand"
+	FlipCalendar  Flip = "calendar"
+	FlipRightHand Flip = "right-hand"
 )
-
-var PivotAxisHuman = []string{"book", "left-hand", "calendar", "right-hand"}
 
 // Heteroriented will be true if the card need to pivot about a diagonal axis for the front and back to remain upright.
 // the negation of this method is always whether the card is homoriented or not.
-func (pa PivotAxis) Heteroriented() bool {
-	return pa == PivotAxisUpRight || pa == PivotAxisDownRight
+func (flip Flip) Heteroriented() bool {
+	return flip == FlipLeftHand || flip == FlipRightHand
 }
 
-func (pa PivotAxis) String() string {
-	switch pa {
-	case PivotAxisUp:
+func (flip Flip) String() string {
+	switch flip {
+	case FlipBook:
 		return "vertical axis"
-	case PivotAxisUpRight:
+	case FlipLeftHand:
 		return "diagonal (up-right) axis"
-	case PivotAxisRight:
+	case FlipCalendar:
 		return "horizontal axis"
-	case PivotAxisDownRight:
+	case FlipRightHand:
 		return "diagonal (down-right) axis"
 	default:
 		panic("unknown pivot axis")

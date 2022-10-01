@@ -29,8 +29,8 @@ func Dimensions(meta *types.Metadata, frontBounds, backBounds image.Rectangle, f
 		return fmt.Errorf("postcard back image is too small")
 	}
 
-	if !similarSize(frontSize, backSize, meta.PivotAxis.Heteroriented()) {
-		return fmt.Errorf("the back image (%s) doesn't match the physical dimensions of the front image (%s) when flipped about the %s", backSize, frontSize, meta.PivotAxis)
+	if !similarSize(frontSize, backSize, meta.Flip.Heteroriented()) {
+		return fmt.Errorf("the back image (%s) doesn't match the physical dimensions of the front image (%s) when flipped about the %s", backSize, frontSize, meta.Flip)
 	}
 
 	if fw > largestRatio*fh {

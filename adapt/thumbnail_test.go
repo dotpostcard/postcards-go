@@ -22,5 +22,5 @@ func ExampleThumbnailFile() {
 
 	fmt.Printf("Thumbnail PNG (%dx%d) has checksum %x",
 		thumb.Bounds().Dx(), thumb.Bounds().Dy(), md5.Sum(buf.Bytes()))
-	// Output: Thumbnail PNG (128x157) has checksum a611eabdf866dde24137210963bf5b91
+	// Output: Thumbnail PNG (128x157) has checksum eba1acbde60137aff808c9783c05706d
 }

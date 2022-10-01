@@ -6,8 +6,8 @@ import (
 )
 
 type Size struct {
-	Width  Length
-	Height Length
+	Width  Length `json:"w"`
+	Height Length `json:"h"`
 }
 
 type Length struct {
@@ -49,20 +49,18 @@ func (l Length) String() string {
 	return fmt.Sprintf("%s%s", l.Count.RatString(), l.Unit.String())
 }
 
-func (s Size) String() string {
-	return fmt.Sprintf("%s x %s", s.Width.String(), s.Height.String())
-}
-
-func (s *Size) fromString(str string) error {
-	var w, h big.Rat
-	if _, err := fmt.Sscanf(str, "%fcm x %fcm", &w, &h); err != nil {
+func (l *Length) fromString(str string) error {
+	var count big.Rat
+	if _, err := fmt.Sscanf(str, "%fcm", &count); err != nil {
 		return err
 	}
 
-	s.Width.Count = &w
-	s.Height.Count = &h
+	l.Count = &count
+	l.Unit = UnitCentimetre
 
-	s.Width.Unit = UnitCentimetre
-	s.Height.Unit = UnitCentimetre
 	return nil
+}
+
+func (s Size) String() string {
+	return fmt.Sprintf("%s x %s", s.Width.String(), s.Height.String())
 }

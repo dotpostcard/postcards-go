@@ -30,14 +30,14 @@ func (ll *LatLong) UnmarshalJSON(b []byte) error {
 	return ll.fromFloats(floats...)
 }
 
-func (s Size) MarshalJSON() ([]byte, error) {
-	return json.Marshal(s.String())
+func (l Length) MarshalJSON() ([]byte, error) {
+	return json.Marshal(l.String())
 }
 
-func (s *Size) UnmarshalJSON(b []byte) error {
+func (l *Length) UnmarshalJSON(b []byte) error {
 	var str string
 	if err := json.Unmarshal(b, &str); err != nil {
 		return err
 	}
-	return s.fromString(str)
+	return l.fromString(str)
 }

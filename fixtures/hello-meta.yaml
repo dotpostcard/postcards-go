@@ -1,20 +1,22 @@
 location: 40.41365195362523,-3.6818597177370997
 sent_on: 2022-09-21
-sender: https://www.byjp.me
+sender: https://dotpostcards.org
 recipient: https://github.com/dotpostcard/postcards-go
 flip: book
 front:
   description:
-    en-GB: A polaroid-style framed photo of the _Palacio de Cristal_ in Madrid's Retiro Park in Autumn.
+    en-GB: A polaroid-style framed photo of the Palacio de Cristal in Madrid's Retiro Park in Autumn.
 back:
   description:
-    en-GB: A plain postcard back. Text at the top left declares this postcard 0033 of Madrid, "Parque del Retiro". Text at the bottom explains artwork is by Hans Löhr, copyright Ediciones 07, tel. 656 834 036 / 916 320 899.
-  transcription: |
-    Hello world!
+    en-GB: A plain postcard back. Text at the top left declares this postcard 0033 of Madrid, "Parque del Retiro". Text at the bottom explains artwork is by Hans Löhr.
+  transcription:
+    original: en-GB
+    en-GB: |
+      Hello world!
 
-    I hope you like this postcard from Madrid!
+      I hope you like this postcard from Madrid!
 
-    x JP
+      x JP
   secrets:
     - type: box
       # Percentages of width or height of postcard, as appropriate
