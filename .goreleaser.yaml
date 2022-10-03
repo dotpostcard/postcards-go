@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+before:
+  hooks:
+    - go mod tidy
+builds:
+  - main: ./cmd/postcards
+    binary: postcards
+    env:
+      - CGO_ENABLED=1
+      - CGO_CFLAGS=-I/opt/homebrew/include
+      - CGO_LDFLAGS=-L/opt/homebrew/lib
+    goos:
+      - darwin
+universal_binaries:
+  - replace: true
+archives:
+  - replacements:
+      386: i386
+      amd64: x86_64
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

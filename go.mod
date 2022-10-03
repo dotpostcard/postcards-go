@@ -3,7 +3,6 @@ module github.com/dotpostcard/postcards-go
 go 1.19
 
 require (
-	github.com/Masterminds/semver v1.5.0
 	github.com/fogleman/gg v1.3.0
 	github.com/spf13/cobra v1.5.0
 	golang.org/x/image v0.0.0-20220902085622-e7cb96979f69
