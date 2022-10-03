@@ -3,6 +3,7 @@ package cmd
 import (
 	"os"
 
+	"github.com/dotpostcard/postcards-go"
 	"github.com/spf13/cobra"
 )
 
@@ -10,8 +11,9 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "postcarder",
-	Short: "A tool to create postcard files from images & descriptions of the front and back",
+	Use:     "postcarder",
+	Short:   "A tool to create postcard files from images & descriptions of the front and back",
+	Version: postcards.Version.String(),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
