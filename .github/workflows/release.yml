@@ -18,6 +18,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          lfs: true
       - run: git fetch --force --tags
       - name: Update dependencies with Homebrew
         run: brew bundle
