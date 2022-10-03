@@ -1,1 +1,2 @@
-brew "webp"
+brew 'webp'
+brew 'exiv2'
