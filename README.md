@@ -8,7 +8,7 @@ The contained CLI tool, `postcarder`, is able to compile front & back images, an
 
 ```bash
 go install github.com/dotpostcard/postcards-go/cmd/postcarder@latest
-postcarder compile fixtures/hello-front.jpg
+postcards compile fixtures/hello-front.jpg
 ```
 
 ## Implementation notes
