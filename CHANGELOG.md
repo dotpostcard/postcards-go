@@ -1,3 +1,9 @@
+## 0.1.2 (2022-10-03)
+
+### Fix
+
+- Add version number to postcards CLI
+
 ## 0.1.1 (2022-10-03)
 
 ### Fix
