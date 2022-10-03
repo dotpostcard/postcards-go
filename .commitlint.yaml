@@ -58,6 +58,7 @@ settings:
     - ci
     - chore
     - revert
+    - bump # Version bumps from commitzen
   type-max-length:
     argument: -1
   type-min-length:
