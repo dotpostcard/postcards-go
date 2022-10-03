@@ -20,10 +20,6 @@ var compileCmd = &cobra.Command{
 			return fmt.Errorf("unknown file path: %w", err)
 		}
 
-		if _, err := os.Stat(path); err != nil {
-			return fmt.Errorf("file doesn't exist: %w", err)
-		}
-
 		filename, data, err := compile.Files(path)
 		if err != nil {
 			return err
