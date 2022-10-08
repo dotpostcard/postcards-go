@@ -1,6 +1,7 @@
 package compile
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/dotpostcard/postcards-go/internal/types"
@@ -23,4 +24,16 @@ func (ym yamlMetadata) Metadata() (types.Metadata, error) {
 	var meta types.Metadata
 	err := yaml.NewDecoder(ym.reader).Decode(&meta)
 	return meta, err
+}
+
+func validateMetadata(meta types.Metadata) error {
+	switch meta.Flip {
+	case types.FlipBook, types.FlipCalendar, types.FlipLeftHand, types.FlipRightHand:
+	case "":
+		return fmt.Errorf("missing flip type")
+	default:
+		return fmt.Errorf("invalid flip type: %s", meta.Flip)
+	}
+
+	return nil
 }

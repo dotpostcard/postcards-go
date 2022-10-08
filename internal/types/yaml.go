@@ -18,19 +18,12 @@ func (ll *LatLong) UnmarshalYAML(y *yaml.Node) error {
 	return ll.fromString(y.Value)
 }
 
-// TODO: Why isn't this working?
 func (f *Flip) UnmarshalYAML(y *yaml.Node) error {
 	if y.ShortTag() != "!!str" {
 		return fmt.Errorf("invalid flip type, expected a string")
 	}
 
-	switch y.Value {
-	case string(FlipBook), string(FlipCalendar), string(FlipLeftHand), string(FlipRightHand):
-		*f = Flip(y.Value)
-	default:
-		return fmt.Errorf("invalid flip type: %s", y.Value)
-	}
-
+	*f = Flip(y.Value)
 	return nil
 }
 

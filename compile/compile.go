@@ -64,6 +64,10 @@ func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Pos
 		return nil, fmt.Errorf("unable to obtain the metadata: %w", err)
 	}
 
+	if err := validateMetadata(meta); err != nil {
+		return nil, fmt.Errorf("metadata invalid: %w", err)
+	}
+
 	frontRaw, frontDims, err := readerToImage(frontReader)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse image for front image: %w", err)
