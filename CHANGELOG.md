@@ -1,3 +1,9 @@
+## 0.1.3 (2022-10-08)
+
+### Fix
+
+- **compiler**: Add validator to metadata compiler
+
 ## 0.1.2 (2022-10-03)
 
 ### Fix
