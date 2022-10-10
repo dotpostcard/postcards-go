@@ -72,7 +72,7 @@ func modalColor(img image.Image, within image.Rectangle) color.Color {
 		for x := within.Min.X; x <= within.Max.X; x++ {
 			c := img.At(x, y)
 			_, _, _, a := c.RGBA()
-			if a < 255 {
+			if a < 65535 {
 				continue
 			}
 
