@@ -11,7 +11,7 @@ var cfgFile string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "postcarder",
+	Use:     "postcards",
 	Short:   "A tool to create postcard files from images & descriptions of the front and back",
 	Version: postcards.Version.String(),
 }
