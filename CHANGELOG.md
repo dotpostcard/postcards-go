@@ -1,3 +1,9 @@
+## 0.1.4 (2022-10-10)
+
+### Fix
+
+- **compiler**: Prevent transparent px in secret
+
 ## 0.1.3 (2022-10-08)
 
 ### Fix
