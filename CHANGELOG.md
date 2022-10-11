@@ -1,3 +1,9 @@
+## 0.2.0 (2022-10-11)
+
+### Feat
+
+- **cli**: Adds useful output for postcards info
+
 ## 0.1.4 (2022-10-10)
 
 ### Fix
