@@ -3,5 +3,8 @@
     "cli",
     "lib",
     "compiler"
-  ]
+  ],
+  "search.exclude": {
+    "sysroots/": true
+  }
 }
