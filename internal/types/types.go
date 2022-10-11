@@ -17,7 +17,6 @@ type LatLong struct {
 	Longitude float64 `json:"long"`
 }
 
-type LocalizedText map[string]string
 type Polygon []Point
 
 type Side struct {

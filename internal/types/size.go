@@ -46,7 +46,8 @@ func (s Size) Convert(u *LengthUnit) Size {
 }
 
 func (l Length) String() string {
-	return fmt.Sprintf("%s%s", l.Count.RatString(), l.Unit.String())
+	fl, _ := l.Count.Float64()
+	return fmt.Sprintf("%.1f%s", fl, l.Unit.String())
 }
 
 func (l *Length) fromString(str string) error {

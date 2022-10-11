@@ -18,13 +18,13 @@ func (flip Flip) Heteroriented() bool {
 func (flip Flip) String() string {
 	switch flip {
 	case FlipBook:
-		return "vertical axis"
+		return "vertical axis (like a book)"
 	case FlipLeftHand:
-		return "diagonal (up-right) axis"
+		return "diagonal (up-right) axis (flipping with your left hand)"
 	case FlipCalendar:
-		return "horizontal axis"
+		return "horizontal axis (like a calendar)"
 	case FlipRightHand:
-		return "diagonal (down-right) axis"
+		return "diagonal (down-right) axis (flipping with your right hand)"
 	default:
 		panic("unknown pivot axis")
 	}
