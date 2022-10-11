@@ -5,3 +5,5 @@
 postcards
 
 dist/
+.release-env
+.DS_Store
