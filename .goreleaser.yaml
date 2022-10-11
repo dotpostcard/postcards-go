@@ -3,20 +3,46 @@ before:
   hooks:
     - go mod tidy
 builds:
-  - main: ./cmd/postcards
+  - id: mac-arm
+    main: ./cmd/postcards
     binary: postcards
     env:
       - CGO_ENABLED=1
-      - CGO_CFLAGS=-I{{.ENV.HOMEBREW_PREFIX}}/include
-      - CGO_LDFLAGS=-L{{.ENV.HOMEBREW_PREFIX}}/lib
+      - CGO_CFLAGS=-I/sysroots/macos/arm64/opt/homebrew/include
+      - CGO_LDFLAGS=-L/sysroots/macos/arm64/opt/homebrew/lib
+      - PKG_CONFIG_SYSROOT_DIR=/sysroots/macos/arm64
+      - PKG_CONFIG_PATH=/sysroots/macos/arm64/opt/homebrew/lib/pkgconfig
+      - CC=o64-clang
+      - CXX=o64-clang++
     goos:
       - darwin
+    goarch:
+      - arm64
+    flags:
+      - -mod=readonly
+  - id: mac-intel
+    main: ./cmd/postcards
+    binary: postcards
+    env:
+      - CGO_ENABLED=1
+      - CGO_CFLAGS=-I/sysroots/macos/amd64/usr/local/include
+      - CGO_LDFLAGS=-L/sysroots/macos/amd64/usr/local/lib
+      - PKG_CONFIG_SYSROOT_DIR=/sysroots/macos/amd64
+      - PKG_CONFIG_PATH=/sysroots/macos/amd64/usr/local/lib/pkgconfig
+      - CC=o64-clang
+      - CXX=o64-clang++
+    goos:
+      - darwin
+    goarch:
+      - amd64
+    flags:
+      - -mod=readonly
 universal_binaries:
-  - replace: true
-archives:
-  - replacements:
-      386: i386
-      amd64: x86_64
+  - name_template: postcards
+    replace: true
+    ids:
+    - mac-arm
+    - mac-intel
 checksum:
   name_template: 'checksums.txt'
 snapshot:
@@ -27,3 +53,10 @@ changelog:
     exclude:
       - '^docs:'
       - '^test:'
+
+release:
+  github:
+    owner: dotpostcard
+    name: postcards-go
+  prerelease: auto
+  draft: false
