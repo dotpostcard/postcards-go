@@ -1,3 +1,9 @@
+## 0.3.4 (2022-10-12)
+
+### Fix
+
+- Correct naming & github PAT
+
 ## 0.3.3 (2022-10-12)
 
 ### Fix
