@@ -1,3 +1,9 @@
+## 0.3.1 (2022-10-12)
+
+### Fix
+
+- Improve docs & trigger new build
+
 ## 0.3.0 (2022-10-12)
 
 ### Feat
