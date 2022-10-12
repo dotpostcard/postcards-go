@@ -44,20 +44,35 @@ func writeVersion(w io.Writer, ver types.Version) error {
 }
 
 func writeMeta(w io.Writer, meta types.Metadata) error {
+	buf, err := MetadataBytes(meta, false)
+	if err != nil {
+		return err
+	}
+
+	if err := binary.Write(w, byteOrder, int32(len(buf))); err != nil {
+		return err
+	}
+
+	_, writeErr := w.Write(buf)
+	return writeErr
+}
+
+func MetadataBytes(meta types.Metadata, pretty bool) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	enc := json.NewEncoder(buf)
+
 	enc.SetEscapeHTML(false)
-	enc.SetIndent("", "")
+	if pretty {
+		enc.SetIndent("", "  ")
+	} else {
+		enc.SetIndent("", "")
+	}
+
 	if err := enc.Encode(meta); err != nil {
-		return err
+		return nil, err
 	}
 
-	if err := binary.Write(w, byteOrder, int32(buf.Len())); err != nil {
-		return err
-	}
-
-	_, err := w.Write(buf.Bytes())
-	return err
+	return buf.Bytes(), nil
 }
 
 func writeImage(w io.Writer, img []byte, name string) error {
