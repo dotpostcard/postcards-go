@@ -56,12 +56,29 @@ snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
+  groups:
+  - title: ⚠️ Breaking changes
+    regexp: "^.*feat[(\\w)]*:+.*$"
+    order: 0
+  - title: 👀 New features
+    regexp: "^.*feat[(\\w)]*:+.*$"
+    order: 1
+  - title: 🐛 Bug fixes
+    regexp: "^.*fix[(\\w)]*:+.*$"
+    order: 2
+  - title: Others
+    order: 999
   filters:
-    include:
-      - '^BREAKING CHANGE:'
-      - '^feat:'
-      - '^fix:'
-      - '^perf:'
+    exclude:
+    - '^docs[(\\w)]*:'
+    - '^style[(\\w)]*:'
+    - '^refactor[(\\w)]*:'
+    - '^test[(\\w)]*:'
+    - '^build[(\\w)]*:'
+    - '^ci[(\\w)]*:'
+    - '^chore[(\\w)]*:'
+    - '^revert:'
+    - '^bump:'
 release:
   github:
     owner: dotpostcard
