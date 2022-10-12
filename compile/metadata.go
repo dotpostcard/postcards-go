@@ -1,6 +1,7 @@
 package compile
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -23,6 +24,20 @@ type yamlMetadata struct {
 func (ym yamlMetadata) Metadata() (types.Metadata, error) {
 	var meta types.Metadata
 	err := yaml.NewDecoder(ym.reader).Decode(&meta)
+	return meta, err
+}
+
+func MetadataFromJSON(r io.Reader) jsonMetadata {
+	return jsonMetadata{reader: r}
+}
+
+type jsonMetadata struct {
+	reader io.Reader
+}
+
+func (jm jsonMetadata) Metadata() (types.Metadata, error) {
+	var meta types.Metadata
+	err := json.NewDecoder(jm.reader).Decode(&meta)
 	return meta, err
 }
 

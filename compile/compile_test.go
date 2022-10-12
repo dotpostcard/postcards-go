@@ -17,7 +17,7 @@ func ExampleFiles() {
 	}
 
 	fmt.Printf("%s has checksum %x", filename, md5.Sum(data))
-	// Output: hello.postcard has checksum a266fd1de5a18f59c9578276ff5607a6
+	// Output: hello.postcard has checksum 0fa011fe11258b08ad70471d9b2ec054
 }
 
 func checkBadSetup(t *testing.T, err error) {
