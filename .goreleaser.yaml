@@ -20,6 +20,8 @@ builds:
       - arm64
     flags:
       - -mod=readonly
+    ldflags:
+      - -s -w
   - id: mac-intel
     main: ./cmd/postcards
     binary: postcards
@@ -37,6 +39,8 @@ builds:
       - amd64
     flags:
       - -mod=readonly
+    ldflags:
+      - -s -w
 universal_binaries:
   - name_template: postcards
     replace: true
@@ -53,7 +57,8 @@ archives:
     386: 32-bit
     darwin: macOS
     all: universal
-  files: []
+  files:
+  - no-existing-files*
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
