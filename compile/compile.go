@@ -31,20 +31,25 @@ func Files(part string) (string, []byte, error) {
 	}
 	prefix := parts[1]
 
-	meta, err := openVagueFilename(dir, prefix, "meta", "yml", "yaml")
+	metaRaw, metaExt, err := openVagueFilename(dir, prefix, "meta", "json", "yml", "yaml")
 	if err != nil {
 		return "", nil, fmt.Errorf("couldn't load metadata: %w", err)
 	}
-	front, err := openVagueFilename(dir, prefix, "front", "png", "jpg", "tif", "tiff")
+	meta, err := metaReader(metaRaw, metaExt)
+	if err != nil {
+		return "", nil, fmt.Errorf("couldn't parse metadata: %w", err)
+	}
+
+	front, _, err := openVagueFilename(dir, prefix, "front", "png", "jpg", "tif", "tiff")
 	if err != nil {
 		return "", nil, fmt.Errorf("couldn't load postcard front: %w", err)
 	}
-	back, err := openVagueFilename(dir, prefix, "back", "png", "jpg", "tif", "tiff")
+	back, _, err := openVagueFilename(dir, prefix, "back", "png", "jpg", "tif", "tiff")
 	if err != nil {
 		return "", nil, fmt.Errorf("couldn't load postcard back: %w", err)
 	}
 
-	pc, err := Readers(front, back, MetadataFromYaml(meta))
+	pc, err := Readers(front, back, meta)
 	if err != nil {
 		return "", nil, err
 	}
@@ -114,14 +119,26 @@ func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Pos
 	return pc, nil
 }
 
-func openVagueFilename(dir, prefix, suffix string, extensions ...string) (io.Reader, error) {
+func openVagueFilename(dir, prefix, suffix string, extensions ...string) (io.Reader, string, error) {
 	for _, ext := range extensions {
-		r, err := os.Open(path.Join(dir, fmt.Sprintf("%s-%s.%s", prefix, suffix, ext)))
+		filename := path.Join(dir, fmt.Sprintf("%s-%s.%s", prefix, suffix, ext))
+		r, err := os.Open(filename)
 		if err == nil {
-			return r, nil
+			return r, ext, nil
 		}
 	}
-	return nil, fmt.Errorf("no file '%s-%s.{%s}' in %s", prefix, suffix, strings.Join(extensions, ","), dir)
+	return nil, "", fmt.Errorf("no file '%s-%s.{%s}' in %s", prefix, suffix, strings.Join(extensions, ","), dir)
+}
+
+func metaReader(r io.Reader, ext string) (MetadataProvider, error) {
+	switch ext {
+	case "json":
+		return MetadataFromJSON(r), nil
+	case "yaml", "yml":
+		return MetadataFromYaml(r), nil
+	default:
+		return nil, fmt.Errorf("unknown metadata format: %s", ext)
+	}
 }
 
 var webpEncoderOpts *encoder.Options
