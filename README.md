@@ -1,13 +1,13 @@
 # Postcard
 
-A **work in progress** library for interacting with `.postcard` files, and the current reference implementation of the structure of this filetype.
+A **work in progress** CLI & library for interacting with `.postcard` files, and the current reference implementation of the structure of this filetype.
 
 A `.postcard` file represents a physical postcard digitally; a double-sided image with metadata like: URLs referencing to the sender(s) and receiver(s), the date it was sent on, the lat/long of where it was sent from, transcriptions of any written text on the front/back, and image descriptions of the front/back.
 
-The contained CLI tool, `postcarder`, is able to compile front & back images, and a metadata file into a `.postcard` file:
+The contained CLI tool, `postcards`, is able to compile front & back images, and a metadata file into a `.postcard` file:
 
 ```bash
-go install github.com/dotpostcard/postcards-go/cmd/postcarder@latest
+go install github.com/dotpostcard/postcards-go/cmd/postcards@latest
 postcards compile fixtures/hello-front.jpg
 ```
 
