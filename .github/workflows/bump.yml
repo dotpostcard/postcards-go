@@ -14,17 +14,22 @@ jobs:
     runs-on: ubuntu-latest
     name: "Bump version and create changelog with commitizen"
     outputs:
-      new_version: ${{ steps.cz.outputs.version }}
+      new_version: ${{ steps.new_version.outputs.version }}
     steps:
       - name: Check out
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Create bump and changelog
-        id: cz
         uses: commitizen-tools/commitizen-action@master
         with:
           github_token: ${{ secrets.GH_TOKEN }}
+      - name: Extract new version
+        if: success()
+        id: new_version
+        run: |
+          VERSION=$(git describe --tags --exact-match 2> /dev/null)
+          [[ ! -z $VERSION ]] && echo "version=${VERSION}" >> $GITHUB_ENV
   goreleaser:
     needs: bump-version
     if: "${{ needs.bump-version.outputs.new_version != '' }}"
@@ -33,13 +38,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
+          ref: ${{ needs.bump-version.outputs.new_version }}
           fetch-depth: 0
       - run: git fetch --force --tags
       - uses: actions/setup-go@v3
         with:
           cache: true
-      - name: setup release environment
+      - name: Setup release environment
         run: |
           echo 'GITHUB_TOKEN=${{secrets.GITHUB_TOKEN}}' > .release-env
-      - name: release publish
+      - name: Publish release to Github
         run: make release
