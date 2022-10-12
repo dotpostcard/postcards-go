@@ -45,15 +45,23 @@ universal_binaries:
     - mac-intel
 checksum:
   name_template: 'checksums.txt'
+archives:
+  format: zip
+  replacements:
+    amd64: 64-bit
+    386: 32-bit
+    darwin: macOS
+  files: []
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
 changelog:
   sort: asc
   filters:
-    exclude:
-      - '^docs:'
-      - '^test:'
-
+    include:
+      - '^BREAKING CHANGE:'
+      - '^feat:'
+      - '^fix:'
+      - '^perf:'
 release:
   github:
     owner: dotpostcard
