@@ -1,3 +1,9 @@
+## 0.3.2 (2022-10-12)
+
+### Fix
+
+- Correctly extract version in CI
+
 ## 0.3.1 (2022-10-12)
 
 ### Fix
