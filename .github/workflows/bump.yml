@@ -1,4 +1,4 @@
-name: Bump version
+name: Bump version & release
 
 on:
   push:
@@ -22,3 +22,20 @@ jobs:
         uses: commitizen-tools/commitizen-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+  goreleaser:
+    needs: bump-version
+    runs-on: macos-latest
+    name: Release binaries as Github releases
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+      - uses: actions/setup-go@v3
+        with:
+          cache: true
+      - name: setup release environment
+        run: |
+          echo 'GITHUB_TOKEN=${{secrets.GITHUB_TOKEN}}' > .release-env
+      - name: release publish
+        run: make release
