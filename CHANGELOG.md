@@ -1,3 +1,10 @@
+## 0.3.0 (2022-10-12)
+
+### Feat
+
+- Allow compiling from JSON too
+- Extract postcard into files
+
 ## 0.2.0 (2022-10-11)
 
 ### Feat
