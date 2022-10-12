@@ -20,18 +20,37 @@ var extractCmd = &cobra.Command{
 			return fmt.Errorf("unknown file path: %w", err)
 		}
 
-		if _, err := os.Stat(path); err != nil {
-			return fmt.Errorf("file doesn't exist: %w", err)
-		}
-
 		pc, err := postcards.ReadFile(path, false)
 		if err != nil {
 			return err
 		}
 
-		fmt.Println(pc.Meta)
+		base := filepath.Base(path)
+		name := base[:len(base)-len(filepath.Ext(base))]
 
-		return fmt.Errorf("not implemented")
+		frontName := fmt.Sprintf("%s-front.webp", name)
+		if err := os.WriteFile(frontName, pc.Front, 0666); err != nil {
+			return err
+		}
+		fmt.Printf("%s: Front image of postcard\n", frontName)
+
+		backName := fmt.Sprintf("%s-back.webp", name)
+		if err := os.WriteFile(backName, pc.Back, 0666); err != nil {
+			return err
+		}
+		fmt.Printf("%s:  Back image of postcard\n", backName)
+
+		metaName := fmt.Sprintf("%s-meta.json", name)
+		meta, err := postcards.MetadataBytes(pc.Meta, true)
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(metaName, meta, 0666); err != nil {
+			return err
+		}
+		fmt.Printf("%s:  Metadata of postcard\n", metaName)
+
+		return nil
 	},
 }
 
