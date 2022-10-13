@@ -30,6 +30,7 @@ jobs:
         run: |
           VERSION=$(git describe --tags --exact-match 2> /dev/null)
           [[ ! -z $VERSION ]] && echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          exit 0
   goreleaser:
     needs: bump-version
     if: "${{ needs.bump-version.outputs.new_version != '' }}"
@@ -43,7 +44,7 @@ jobs:
       - run: git fetch --force --tags
       - uses: actions/setup-go@v3
         with:
-          cache: true
+          go-version-file: go.mod
       - name: Setup release environment
         run: |
           echo 'GITHUB_TOKEN=${{ secrets.GH_TOKEN }}' > .release-env
