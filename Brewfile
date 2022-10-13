@@ -8,7 +8,7 @@ YAML.load_file('.goreleaser.yaml')['brews'].each do |tap|
     next unless install_optional
 
     if dep['version']
-      brew "#{brew dep['name']}@#{brew dep['version']}"
+      brew "#{dep['name']}@#{dep['version']}"
     else
       brew dep['name']
     end
