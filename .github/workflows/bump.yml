@@ -28,9 +28,8 @@ jobs:
         if: success()
         id: new_version
         run: |
-          VERSION=$(git describe --tags --exact-match 2> /dev/null)
+          VERSION=$(git describe --tags --exact-match 2> /dev/null || true)
           [[ ! -z $VERSION ]] && echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          exit 0
   goreleaser:
     needs: bump-version
     if: "${{ needs.bump-version.outputs.new_version != '' }}"
