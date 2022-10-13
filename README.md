@@ -7,7 +7,7 @@ A `.postcard` file represents a physical postcard digitally; a double-sided imag
 The contained CLI tool, `postcards`, is able to compile front & back images, and a metadata file into a `.postcard` file:
 
 ```bash
-go install github.com/dotpostcard/postcards-go/cmd/postcards@latest
+brew install dotpostcard/tools/postcards
 postcards compile fixtures/hello-front.jpg
 ```
 
