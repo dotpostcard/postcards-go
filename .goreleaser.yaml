@@ -102,6 +102,9 @@ brews:
   homepage: "https://dotpostcards.org/cli/postcards"
   description: "Tool for creating digital versions of physical postcards"
   license: "MIT"
+  dependencies:
+  - name: exiv2
+  - name: webp
   custom_block: |
     resource("hello.postcard") do
       url "https://github.com/dotpostcard/postcards-go/blob/1484f9c8a20f862fa1edc502b922eeb5050b6091/fixtures/hello.postcard?raw=true"
