@@ -43,6 +43,7 @@ builds:
       - -s -w
 universal_binaries:
   - name_template: postcards
+    id: mac-universal
     replace: true
     ids:
     - mac-arm
@@ -65,13 +66,13 @@ changelog:
   sort: asc
   groups:
   - title: ⚠️ Breaking changes
-    regexp: "^.*feat[(\\w)]*:+.*$"
+    regexp: "BREAKING CHANGE"
     order: 0
   - title: 👀 New features
-    regexp: "^.*feat[(\\w)]*:+.*$"
+    regexp: "^feat[(\\w)]*:+.*$"
     order: 1
   - title: 🐛 Bug fixes
-    regexp: "^.*fix[(\\w)]*:+.*$"
+    regexp: "^fix[(\\w)]*:+.*$"
     order: 2
   - title: Others
     order: 999
@@ -92,3 +93,23 @@ release:
     name: postcards-go
   prerelease: auto
   draft: false
+brews:
+- name: postcards
+  tap:
+    owner: dotpostcard
+    name: homebrew-tools
+  folder: Formula
+  homepage: "https://dotpostcards.org/cli/postcards"
+  description: "Tool for creating digital versions of physical postcards"
+  license: "MIT"
+  custom_block: |
+    resource("hello.postcard") do
+      url "https://github.com/dotpostcard/postcards-go/blob/1484f9c8a20f862fa1edc502b922eeb5050b6091/fixtures/hello.postcard?raw=true"
+      sha256 "278ba622122f08e218c929a46ae056dc074a42f12514516eb980587ab1d3ae39"
+    end
+  test: |
+    resource("hello.postcard").stage do
+      expected_start = "Postcard:   hello.postcard\nSize:       881.3 KiB\n"
+      actual_output = shell_output("#{bin}/postcards info hello.postcard")
+      assert actual_output.start_with?(expected_start)
+    end
