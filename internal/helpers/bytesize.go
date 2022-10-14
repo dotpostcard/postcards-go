@@ -7,13 +7,16 @@ import (
 
 const byteScaler = 1024
 
-func SizeHuman(f *os.File) string {
+func FileSizeHuman(f *os.File) string {
 	stat, err := f.Stat()
 	if err != nil {
 		return "unknown size"
 	}
 
-	s := stat.Size()
+	return ByteSizeHuman(stat.Size())
+}
+
+func ByteSizeHuman(s int64) string {
 	if s < byteScaler {
 		return fmt.Sprintf("%d B", s)
 	}

@@ -2,11 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path"
 	"reflect"
 
-	"github.com/dotpostcard/postcards-go"
 	"github.com/dotpostcard/postcards-go/internal/helpers"
 	"github.com/spf13/cobra"
 )
@@ -16,21 +13,13 @@ var infoCmd = &cobra.Command{
 	Short: "prints info about the specified postcard",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		file := args[0]
-
-		f, err := os.Open(file)
-		if err != nil {
-			return fmt.Errorf("unable to open file: %w", err)
-		}
-		defer f.Close()
-
-		pc, err := postcards.Read(f, true)
+		pc, filename, size, err := helpers.OpenFromFilename(args[0], "(stdin)", true)
 		if err != nil {
 			return fmt.Errorf("unable to read postcard file: %w", err)
 		}
 
-		fmt.Printf("Postcard:   %s\n", path.Base(file))
-		fmt.Printf("Size:       %s\n", helpers.SizeHuman(f))
+		fmt.Printf("Postcard:   %s\n", filename)
+		printUnlessZero("Size:       %s\n", size)
 		fmt.Println()
 
 		printUnlessZero("From:       %s\n", pc.Meta.Sender)

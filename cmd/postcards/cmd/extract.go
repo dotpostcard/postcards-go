@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/dotpostcard/postcards-go"
+	"github.com/dotpostcard/postcards-go/internal/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -15,17 +16,11 @@ var extractCmd = &cobra.Command{
 	Short: "Extracts images & metadata from a postcard file",
 	Args:  cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		path, err := filepath.Abs(args[0])
+		pc, base, _, err := helpers.OpenFromFilename(args[0], "postcard", false)
 		if err != nil {
-			return fmt.Errorf("unknown file path: %w", err)
+			return fmt.Errorf("unable to read postcard file: %w", err)
 		}
 
-		pc, err := postcards.ReadFile(path, false)
-		if err != nil {
-			return err
-		}
-
-		base := filepath.Base(path)
 		name := base[:len(base)-len(filepath.Ext(base))]
 
 		frontName := fmt.Sprintf("%s-front.webp", name)
