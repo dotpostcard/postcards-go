@@ -2,26 +2,25 @@ package resolution
 
 import (
 	"fmt"
-
-	"github.com/dotpostcard/postcards-go/internal/types"
+	"math/big"
 )
 
 var readers = []struct {
 	magicBytes []byte
-	fn         func([]byte) (types.Resolution, error)
+	fn         func([]byte) (*big.Rat, *big.Rat, error)
 }{
 	{[]byte(pngHeader), decodePng},          // PNG
 	{[]byte("\xff\xd8"), decodeExif},        // JPEG
 	{[]byte("RIFF????WEBPVP8"), decodeExif}, // WebP
 }
 
-func Decode(data []byte) (types.Resolution, error) {
+func Decode(data []byte) (*big.Rat, *big.Rat, error) {
 	for _, r := range readers {
 		if isMagic(data[0:len(r.magicBytes)], r.magicBytes) {
 			return r.fn(data)
 		}
 	}
-	return types.Resolution{}, fmt.Errorf("unparseable image format")
+	return nil, nil, fmt.Errorf("unparseable image format")
 }
 
 func isMagic(data, magic []byte) bool {
