@@ -82,6 +82,7 @@ func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Pos
 		return nil, fmt.Errorf("unable to parse image for back image: %w", err)
 	}
 
+	// TODO: Ensure front dims
 	meta.FrontDimensions = frontDims
 
 	if err := validate.Dimensions(&meta, frontRaw.Bounds(), backRaw.Bounds(), frontDims, backDims); err != nil {
@@ -171,5 +172,16 @@ func encodeWebp(img image.Image, size types.Size) ([]byte, error) {
 var oversized float64 = 30 // Centimetres
 
 func isOversized(s types.Size) bool {
-	return s.Width.In(types.UnitCentimetre) >= oversized || s.Height.In(types.UnitCentimetre) >= oversized
+	if !s.HasPhysical() {
+		return false
+	}
+
+	if w, ok := s.CmWidth.Float64(); !ok || w > oversized {
+		return true
+	}
+	if h, ok := s.CmHeight.Float64(); !ok || h > oversized {
+		return true
+	}
+
+	return false
 }

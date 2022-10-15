@@ -3,7 +3,6 @@ package validate
 import (
 	"fmt"
 	"image"
-	"math"
 
 	"github.com/dotpostcard/postcards-go/internal/types"
 )
@@ -11,7 +10,6 @@ import (
 const (
 	smallestPx   = 640
 	largestRatio = 4
-	maxRatioDiff = 0.01
 )
 
 func Dimensions(meta *types.Metadata, frontBounds, backBounds image.Rectangle, frontSize, backSize types.Size) error {
@@ -29,7 +27,7 @@ func Dimensions(meta *types.Metadata, frontBounds, backBounds image.Rectangle, f
 		return fmt.Errorf("postcard back image is too small")
 	}
 
-	if !similarSize(frontSize, backSize, meta.Flip.Heteroriented()) {
+	if !frontSize.SimilarPhysical(backSize, meta.Flip) {
 		return fmt.Errorf("the back image (%s) doesn't match the physical dimensions of the front image (%s) when flipped about the %s", backSize, frontSize, meta.Flip)
 	}
 
@@ -47,18 +45,4 @@ func Dimensions(meta *types.Metadata, frontBounds, backBounds image.Rectangle, f
 	}
 
 	return nil
-}
-
-// similarSize assumes all sizes are of the same unit
-func similarSize(front, back types.Size, heteroriented bool) bool {
-	if heteroriented {
-		return similarLength(front.Width, back.Height) && similarLength(front.Height, back.Width)
-	} else {
-		return similarLength(front.Width, back.Width) && similarLength(front.Height, back.Height)
-	}
-}
-
-func similarLength(l1, l2 types.Length) bool {
-	ratio := l1.In(types.UnitCentimetre) / l2.In(types.UnitCentimetre)
-	return math.Abs(1-ratio) <= maxRatioDiff
 }

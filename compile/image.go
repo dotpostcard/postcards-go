@@ -20,11 +20,14 @@ func readerToImage(r io.Reader) (image.Image, types.Size, error) {
 		return nil, types.Size{}, err
 	}
 
-	res, err := resolution.Decode(buf.Bytes())
-	if err != nil {
-		return nil, types.Size{}, err
+	size := types.Size{
+		PxWidth:  img.Bounds().Dx(),
+		PxHeight: img.Bounds().Dy(),
 	}
 
-	size := res.Size(img.Bounds().Dx(), img.Bounds().Dy())
+	if xRes, yRes, err := resolution.Decode(buf.Bytes()); err == nil {
+		size.SetResolution(xRes, yRes)
+	}
+
 	return img, size, nil
 }

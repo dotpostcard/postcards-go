@@ -2,7 +2,6 @@ package types
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 func (pts Polygon) MarshalJSON() ([]byte, error) {
@@ -29,17 +28,4 @@ func (ll *LatLong) UnmarshalJSON(b []byte) error {
 	}
 
 	return ll.fromFloats(floats...)
-}
-
-func (l Length) MarshalJSON() ([]byte, error) {
-	str := fmt.Sprintf("%s%s", l.Count.RatString(), l.Unit.String())
-	return json.Marshal(str)
-}
-
-func (l *Length) UnmarshalJSON(b []byte) error {
-	var str string
-	if err := json.Unmarshal(b, &str); err != nil {
-		return err
-	}
-	return l.fromString(str)
 }

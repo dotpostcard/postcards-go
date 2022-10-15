@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/dotpostcard/postcards-go/internal/types"
 	pngstructure "github.com/dsoprea/go-png-image-structure"
 )
 
@@ -13,12 +12,12 @@ const (
 	pngHeader = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A"
 )
 
-func decodePng(data []byte) (types.Resolution, error) {
+func decodePng(data []byte) (*big.Rat, *big.Rat, error) {
 	pmp := pngstructure.NewPngMediaParser()
 
 	intfc, err := pmp.ParseBytes(data)
 	if err != nil {
-		return types.Resolution{}, err
+		return nil, nil, err
 	}
 
 	cs := intfc.(*pngstructure.ChunkSlice)
@@ -26,23 +25,21 @@ func decodePng(data []byte) (types.Resolution, error) {
 	phys, ok := index["pHYs"]
 	if !ok {
 		// No physical dimension information
-		return types.Resolution{}, nil
+		return nil, nil, nil
 	}
 	b := phys[0].Data
 	if len(b) < 9 {
-		return types.Resolution{}, fmt.Errorf("incomplete PNG pHYs header")
+		return nil, nil, fmt.Errorf("incomplete PNG pHYs header")
 	}
 
 	unit := b[8]
 	if unit != 1 {
-		return types.Resolution{}, fmt.Errorf("invalid PNG resolution unit (%d)", unit)
+		return nil, nil, fmt.Errorf("invalid PNG resolution unit (%d)", unit)
 	}
 
 	pdX := binary.BigEndian.Uint32(b[0:4])
 	pdY := binary.BigEndian.Uint32(b[4:8])
 
-	return types.Resolution{
-		XResolution: types.PixelDensity{Count: big.NewRat(int64(pdX), 1), Unit: types.UnitPixelsPerMetre},
-		YResolution: types.PixelDensity{Count: big.NewRat(int64(pdY), 1), Unit: types.UnitPixelsPerMetre},
-	}, nil
+	// Scale down by 100, because PNG gives units in meters
+	return big.NewRat(int64(pdX), 100), big.NewRat(int64(pdY), 100), nil
 }

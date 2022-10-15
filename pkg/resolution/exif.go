@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/dotpostcard/postcards-go/internal/types"
 	"github.com/kolesa-team/goexiv"
 )
 
@@ -14,55 +13,51 @@ const (
 	resYCode    = "Exif.Image.YResolution"
 )
 
-func decodeExif(data []byte) (types.Resolution, error) {
+func decodeExif(data []byte) (*big.Rat, *big.Rat, error) {
 	im, err := goexiv.OpenBytes(data)
 	if err != nil {
-		return types.Resolution{}, err
+		return nil, nil, err
 	}
 
 	if err := im.ReadMetadata(); err != nil {
-		return types.Resolution{}, err
+		return nil, nil, err
 	}
-
-	fmt.Println(im.GetIptcData().AllTags())
 
 	return GetExifResolution(im)
 }
 
-func GetExifResolution(im *goexiv.Image) (types.Resolution, error) {
-	unit, err := getExifResUnit(im)
+func GetExifResolution(im *goexiv.Image) (*big.Rat, *big.Rat, error) {
+	toCm, err := getExifResUnit(im)
 	if err != nil {
-		return types.Resolution{}, err
+		return nil, nil, err
 	}
 
-	xRes, err := getExifResCount(im, resXCode)
-	if err != nil {
-		return types.Resolution{}, err
-	}
-	yRes, err := getExifResCount(im, resYCode)
-	if err != nil {
-		return types.Resolution{}, err
+	xRes, xErr := getExifResCount(im, resXCode)
+	yRes, yErr := getExifResCount(im, resYCode)
+
+	resErr := xErr
+	if err == nil {
+		resErr = yErr
 	}
 
-	return types.Resolution{
-		XResolution: types.PixelDensity{Count: xRes, Unit: unit},
-		YResolution: types.PixelDensity{Count: yRes, Unit: unit},
-	}, nil
+	return toCm(xRes), toCm(yRes), resErr
 }
 
-func getExifResUnit(im *goexiv.Image) (*types.PixelDensityUnit, error) {
+func getExifResUnit(im *goexiv.Image) (func(*big.Rat) *big.Rat, error) {
 	unit, err := im.GetExifData().GetString(resUnitCode)
 	if err != nil {
 		return nil, err
 	}
 
 	switch unit {
-	case "3":
-		return types.UnitPixelsPerCentimetre, nil
-	case "2", "1":
-		return types.UnitPixelsPerInch, nil
+	case "3": // in centimeters
+		return func(r *big.Rat) *big.Rat { return r }, nil
+	case "2", "1": // in inches
+		return func(r *big.Rat) *big.Rat {
+			return big.NewRat(1, 1).Quo(r, big.NewRat(254, 100))
+		}, nil
 	default:
-		return nil, fmt.Errorf("unknown EXIF resolution unit")
+		return nil, fmt.Errorf("unknown EXIF resolution unit: %v", unit)
 	}
 }
 
