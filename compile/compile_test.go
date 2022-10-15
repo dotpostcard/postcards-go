@@ -32,7 +32,7 @@ func ExampleFiles() {
 	}
 
 	fmt.Printf("%s has checksum %x", filename, hashOfPostcardInnards(data))
-	// Output: hello.postcard has checksum 1533b36b47f86b71c3748ebdf7361740
+	// Output: hello.postcard has checksum e785d32981bb01b5c1b32ef160fb4c7a
 }
 
 func checkBadSetup(t *testing.T, err error) {
@@ -63,14 +63,19 @@ func TestReaders(t *testing.T) {
 	}{
 		{"Latitude", pc.Meta.Location.Latitude, 40.41365195362523},
 		{"Longitude", pc.Meta.Location.Longitude, -3.6818597177370997},
-		{"Sender", pc.Meta.Sender, "https://dotpostcards.org"},
-		{"Recipient", pc.Meta.Recipient, "https://github.com/dotpostcard/postcards-go"},
+		{"Sender (name)", pc.Meta.Sender.Name, "JP"},
+		{"Sender (uri)", pc.Meta.Sender.Uri, ""},
+		{"Recipient (name)", pc.Meta.Recipient.Name, ""},
+		{"Recipient (uri)", pc.Meta.Recipient.Uri, "https://github.com/dotpostcard/postcards-go"},
 		{"Pivot axis", pc.Meta.Flip, types.FlipBook},
 		{"Sent date", pc.Meta.SentOn, types.Date("2022-09-21")},
 		{"Front description", pc.Meta.Front.Description["en-GB"], "A polaroid-style framed photo of the Palacio de Cristal in Madrid's Retiro Park in Autumn."},
 		{"Back description", pc.Meta.Back.Description["en-GB"], `A plain postcard back. Text at the top left declares this postcard 0033 of Madrid, "Parque del Retiro". Text at the bottom explains artwork is by Hans Löhr.`},
-		{"Back transcription original", pc.Meta.Back.Transcription["original"], "en-GB"},
+		{"Back transcription (original)", pc.Meta.Back.Transcription["original"], "en-GB"},
 		{"Back transcription", pc.Meta.Back.Transcription["en-GB"], "Hello world!\n\nI hope you like this postcard from Madrid!\n\nx JP\n"},
+		{"First commentary author (name)", pc.Meta.Context.Author.Name, "JP"},
+		{"First commentary author (url)", pc.Meta.Context.Author.Uri, "https://byJP.me"},
+		{"First commentary description", pc.Meta.Context.Description["en-GB"], "This is a postcard I wrote, but never sent, as a fixture to use for the software repository at https://github.com/dotpostcard/postcards-go."},
 	}
 	for _, check := range checks {
 		if check.actual != check.expected {
