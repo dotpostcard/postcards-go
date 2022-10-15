@@ -88,7 +88,6 @@ func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Pos
 	if err := validate.Dimensions(&meta, frontRaw.Bounds(), backRaw.Bounds(), frontDims, backDims); err != nil {
 		return nil, err
 	}
-
 	if isOversized(frontDims) {
 		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", frontDims)
 	}
@@ -176,10 +175,10 @@ func isOversized(s types.Size) bool {
 		return false
 	}
 
-	if w, ok := s.CmWidth.Float64(); !ok || w > oversized {
+	if w, _ := s.CmWidth.Float64(); w > oversized {
 		return true
 	}
-	if h, ok := s.CmHeight.Float64(); !ok || h > oversized {
+	if h, _ := s.CmHeight.Float64(); h > oversized {
 		return true
 	}
 
