@@ -1,3 +1,10 @@
+## 0.5.1 (2022-10-15)
+
+### Fix
+
+- Correct oversize detection
+- Update fixtures & tests to cope with version
+
 ## 0.5.0 (2022-10-15)
 
 ### Feat
