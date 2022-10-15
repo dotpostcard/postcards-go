@@ -6,9 +6,24 @@ import (
 	"os"
 	"testing"
 
+	"github.com/dotpostcard/postcards-go"
 	"github.com/dotpostcard/postcards-go/compile"
 	"github.com/dotpostcard/postcards-go/internal/types"
 )
+
+func hashOfPostcardInnards(data []byte) [16]byte {
+	if data[8] == postcards.Version.Major {
+		data[8] = 0
+	}
+	if data[9] == postcards.Version.Minor {
+		data[9] = 0
+	}
+	if data[10] == postcards.Version.Patch {
+		data[10] = 0
+	}
+
+	return md5.Sum(data)
+}
 
 func ExampleFiles() {
 	filename, data, err := compile.Files("../fixtures/hello-meta.yaml")
@@ -16,8 +31,8 @@ func ExampleFiles() {
 		panic(err)
 	}
 
-	fmt.Printf("%s has checksum %x", filename, md5.Sum(data))
-	// Output: hello.postcard has checksum 0fa011fe11258b08ad70471d9b2ec054
+	fmt.Printf("%s has checksum %x", filename, hashOfPostcardInnards(data))
+	// Output: hello.postcard has checksum 1533b36b47f86b71c3748ebdf7361740
 }
 
 func checkBadSetup(t *testing.T, err error) {
