@@ -1,3 +1,9 @@
+## 0.6.0 (2022-10-15)
+
+### Feat
+
+- Allow for commentaries & names for people
+
 ## 0.5.1 (2022-10-15)
 
 ### Fix
