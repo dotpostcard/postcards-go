@@ -25,15 +25,26 @@ type Side struct {
 	Secrets       []Polygon     `json:"secrets,omitempty"`
 }
 
+type Context struct {
+	Author      Person        `json:"author"`
+	Description LocalizedText `json:"description"`
+}
+
+type Person struct {
+	Name string `json:"name,omitempty"`
+	Uri  string `json:"uri,omitempty" yaml:"link,omitempty"`
+}
+
 type Metadata struct {
 	Location        LatLong `json:"location,omitempty"`
 	Flip            Flip    `json:"flip" yaml:"flip"`
 	SentOn          Date    `json:"sentOn,omitempty" yaml:"sent_on"`
-	Sender          string  `json:"sender,omitempty"`
-	Recipient       string  `json:"recipient,omitempty"`
+	Sender          Person  `json:"sender,omitempty"`
+	Recipient       Person  `json:"recipient,omitempty"`
 	Front           Side    `json:"front,omitempty"`
 	Back            Side    `json:"back,omitempty"`
 	FrontDimensions Size    `json:"frontSize" yaml:",omitempty"`
+	Context         Context `json:"context,omitempty"`
 }
 
 var _ json.Marshaler = (*LatLong)(nil)

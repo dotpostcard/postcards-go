@@ -1,7 +1,9 @@
 location: 40.41365195362523,-3.6818597177370997
 sent_on: 2022-09-21
-sender: https://dotpostcards.org
-recipient: https://github.com/dotpostcard/postcards-go
+sender:
+  name: JP
+recipient:
+  link: https://github.com/dotpostcard/postcards-go
 flip: book
 front:
   description:
@@ -25,3 +27,9 @@ back:
       # The top left corner of the box, measured from the top left of the postcard
       left: 0.5415162455
       top: 0.4799764429
+context:
+  author:
+    name: JP
+    link: https://byJP.me
+  description:
+    en-GB: This is a postcard I wrote, but never sent, as a fixture to use for the software repository at https://github.com/dotpostcard/postcards-go.
