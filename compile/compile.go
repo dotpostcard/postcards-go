@@ -82,8 +82,7 @@ func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Pos
 		return nil, fmt.Errorf("unable to parse image for back image: %w", err)
 	}
 
-	// TODO: Ensure front dims
-	meta.FrontDimensions = frontDims
+	meta.FrontDimensions = bestFrontDimensions(meta.FrontDimensions, frontDims, backDims, meta.Flip.Heteroriented())
 
 	if err := validate.Dimensions(&meta, frontRaw.Bounds(), backRaw.Bounds(), frontDims, backDims); err != nil {
 		return nil, err
@@ -183,4 +182,35 @@ func isOversized(s types.Size) bool {
 	}
 
 	return false
+}
+
+func bestFrontDimensions(fromMeta, fromFront, fromBack types.Size, isHeteroriented bool) types.Size {
+	bestSize := types.Size{
+		CmWidth:  fromMeta.CmWidth,
+		CmHeight: fromMeta.CmHeight,
+		PxWidth:  fromFront.PxWidth,
+		PxHeight: fromFront.PxHeight,
+	}
+
+	if bestSize.HasPhysical() {
+		// TODO: Flag if resolutions are wildly off
+		return bestSize
+	}
+
+	bestSize.CmWidth = fromFront.CmWidth
+	bestSize.CmHeight = fromFront.CmHeight
+
+	if bestSize.HasPhysical() {
+		return bestSize
+	}
+
+	if isHeteroriented {
+		bestSize.CmWidth = fromBack.CmHeight
+		bestSize.CmHeight = fromBack.CmWidth
+	} else {
+		bestSize.CmWidth = fromBack.CmWidth
+		bestSize.CmHeight = fromBack.CmHeight
+	}
+
+	return bestSize
 }

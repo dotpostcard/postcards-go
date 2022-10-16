@@ -61,7 +61,7 @@ type Metadata struct {
 	Recipient       Person   `json:"recipient,omitempty"`
 	Front           Side     `json:"front,omitempty"`
 	Back            Side     `json:"back,omitempty"`
-	FrontDimensions Size     `json:"frontSize" yaml:",omitempty"`
+	FrontDimensions Size     `json:"frontSize" yaml:"front_size,omitempty"`
 	Context         Context  `json:"context,omitempty"`
 }
 

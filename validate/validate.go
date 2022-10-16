@@ -13,7 +13,7 @@ const (
 )
 
 func Dimensions(meta *types.Metadata, frontBounds, backBounds image.Rectangle, frontSize, backSize types.Size) error {
-	if frontSize != meta.FrontDimensions {
+	if frontSize.HasPhysical() && frontSize != meta.FrontDimensions {
 		return fmt.Errorf("the front image (%s) doesn't match the physical dimensions specified in the metadata file (%s)", frontSize, meta.FrontDimensions)
 	}
 

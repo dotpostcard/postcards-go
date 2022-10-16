@@ -32,7 +32,7 @@ func ExampleFiles() {
 	}
 
 	fmt.Printf("%s has checksum %x", filename, hashOfPostcardInnards(data))
-	// Output: hello.postcard has checksum f3d3ed2b0cec5da1cc12bbe33745fbb7
+	// Output: hello.postcard has checksum 37643c08a2115e4fff0699c9e8cd290d
 }
 
 func checkBadSetup(t *testing.T, err error) {
@@ -66,7 +66,7 @@ func TestReaders(t *testing.T) {
 		{"Location longitude", *pc.Meta.Location.Longitude, float64(-3.6818597177370997)},
 		{"Sender (name)", pc.Meta.Sender.Name, "JP"},
 		{"Sender (uri)", pc.Meta.Sender.Uri, ""},
-		{"Recipient (name)", pc.Meta.Recipient.Name, ""},
+		{"Recipient (name)", pc.Meta.Recipient.Name, "Users of @dotpostcard code"},
 		{"Recipient (uri)", pc.Meta.Recipient.Uri, "https://github.com/dotpostcard/postcards-go"},
 		{"Pivot axis", pc.Meta.Flip, types.FlipBook},
 		{"Sent date", pc.Meta.SentOn, types.Date("2022-09-21")},

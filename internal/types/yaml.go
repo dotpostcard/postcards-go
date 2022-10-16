@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"math/big"
 
 	"gopkg.in/yaml.v3"
 )
@@ -100,4 +101,24 @@ func (box SecretBox) intoPolygon(pts *Polygon) error {
 
 func outOfBounds(d float64) bool {
 	return d < 0.0 || d > 1.0
+}
+
+func (s *Size) UnmarshalYAML(y *yaml.Node) error {
+	if y.ShortTag() != "!!str" {
+		return fmt.Errorf("invalid front_size, expected a string")
+	}
+
+	var w, h big.Rat
+	_, err := fmt.Sscanf(y.Value, "%fcm x %fcm", &w, &h)
+	if err != nil {
+		return err
+	}
+
+	newSize := &Size{
+		CmWidth:  &w,
+		CmHeight: &h,
+	}
+	*s = *newSize
+
+	return err
 }
