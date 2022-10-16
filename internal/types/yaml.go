@@ -6,18 +6,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func (ll LatLong) MarshalYAML() (interface{}, error) {
-	return ll.String(), nil
-}
-
-func (ll *LatLong) UnmarshalYAML(y *yaml.Node) error {
-	if y.ShortTag() != "!!str" {
-		return fmt.Errorf("invalid lat,long type, expected a comma separated string")
-	}
-
-	return ll.fromString(y.Value)
-}
-
 func (f *Flip) UnmarshalYAML(y *yaml.Node) error {
 	if y.ShortTag() != "!!str" {
 		return fmt.Errorf("invalid flip type, expected a string")

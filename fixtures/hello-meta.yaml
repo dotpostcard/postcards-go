@@ -1,8 +1,12 @@
-location: 40.41365195362523,-3.6818597177370997
+location:
+  name: Palacio de Cristal, Retiro Park, Madrid, Spain
+  latitude: 40.41365195362523
+  longitude: -3.6818597177370997
 sent_on: 2022-09-21
 sender:
   name: JP
 recipient:
+  name: Users of @dotpostcard code
   link: https://github.com/dotpostcard/postcards-go
 flip: book
 front:

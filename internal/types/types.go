@@ -2,6 +2,7 @@ package types
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"gopkg.in/yaml.v3"
 )
@@ -12,9 +13,18 @@ type Postcard struct {
 	Back  []byte
 }
 
-type LatLong struct {
-	Latitude  float64 `json:"lat"`
-	Longitude float64 `json:"long"`
+type Location struct {
+	Name      string   `json:"name"`
+	Latitude  *float64 `json:"lat,omitempty" yaml:"latitude,omitempty"`
+	Longitude *float64 `json:"long,omitempty" yaml:"longitude,omitempty"`
+}
+
+func (l Location) String() string {
+	if l.Latitude == nil || l.Longitude == nil {
+		return l.Name
+	}
+
+	return fmt.Sprintf("%s (%.5f,%.5f)", l.Name, *l.Latitude, *l.Longitude)
 }
 
 type Polygon []Point
@@ -31,26 +41,29 @@ type Context struct {
 }
 
 type Person struct {
-	Name string `json:"name,omitempty"`
+	Name string `json:"name"`
 	Uri  string `json:"uri,omitempty" yaml:"link,omitempty"`
 }
 
-type Metadata struct {
-	Location        LatLong `json:"location,omitempty"`
-	Flip            Flip    `json:"flip" yaml:"flip"`
-	SentOn          Date    `json:"sentOn,omitempty" yaml:"sent_on"`
-	Sender          Person  `json:"sender,omitempty"`
-	Recipient       Person  `json:"recipient,omitempty"`
-	Front           Side    `json:"front,omitempty"`
-	Back            Side    `json:"back,omitempty"`
-	FrontDimensions Size    `json:"frontSize" yaml:",omitempty"`
-	Context         Context `json:"context,omitempty"`
+func (p Person) String() string {
+	if p.Uri == "" {
+		return p.Name
+	}
+
+	return fmt.Sprintf("%s (%s)", p.Name, p.Uri)
 }
 
-var _ json.Marshaler = (*LatLong)(nil)
-var _ yaml.Marshaler = (*LatLong)(nil)
-var _ json.Unmarshaler = (*LatLong)(nil)
-var _ yaml.Unmarshaler = (*LatLong)(nil)
+type Metadata struct {
+	Location        Location `json:"location,omitempty"`
+	Flip            Flip     `json:"flip" yaml:"flip"`
+	SentOn          Date     `json:"sentOn,omitempty" yaml:"sent_on"`
+	Sender          Person   `json:"sender,omitempty"`
+	Recipient       Person   `json:"recipient,omitempty"`
+	Front           Side     `json:"front,omitempty"`
+	Back            Side     `json:"back,omitempty"`
+	FrontDimensions Size     `json:"frontSize" yaml:",omitempty"`
+	Context         Context  `json:"context,omitempty"`
+}
 
 var _ json.Marshaler = (*Polygon)(nil)
 var _ yaml.Marshaler = (*Polygon)(nil)

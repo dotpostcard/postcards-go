@@ -36,7 +36,7 @@ var infoCmd = &cobra.Command{
 		printUnlessZero("From:       %s\n", pc.Meta.Sender)
 		printUnlessZero("To:         %s\n", pc.Meta.Recipient)
 		printUnlessZero("Sent on:    %s\n", pc.Meta.SentOn)
-		printUnlessZero("Sent from:  %s\n", pc.Meta.Location)
+		printUnlessZero("Location:   %s\n", pc.Meta.Location.Name)
 		printUnlessZero("Flips:      %s\n", pc.Meta.Flip)
 		printUnlessZero("Dimensions: %s\n", pc.Meta.FrontDimensions)
 		fmt.Println()

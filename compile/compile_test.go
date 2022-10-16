@@ -32,7 +32,7 @@ func ExampleFiles() {
 	}
 
 	fmt.Printf("%s has checksum %x", filename, hashOfPostcardInnards(data))
-	// Output: hello.postcard has checksum e785d32981bb01b5c1b32ef160fb4c7a
+	// Output: hello.postcard has checksum f3d3ed2b0cec5da1cc12bbe33745fbb7
 }
 
 func checkBadSetup(t *testing.T, err error) {
@@ -61,8 +61,9 @@ func TestReaders(t *testing.T) {
 		actual   interface{}
 		expected interface{}
 	}{
-		{"Latitude", pc.Meta.Location.Latitude, 40.41365195362523},
-		{"Longitude", pc.Meta.Location.Longitude, -3.6818597177370997},
+		{"Location name", pc.Meta.Location.Name, "Palacio de Cristal, Retiro Park, Madrid, Spain"},
+		{"Location latitude", *pc.Meta.Location.Latitude, float64(40.41365195362523)},
+		{"Location longitude", *pc.Meta.Location.Longitude, float64(-3.6818597177370997)},
 		{"Sender (name)", pc.Meta.Sender.Name, "JP"},
 		{"Sender (uri)", pc.Meta.Sender.Uri, ""},
 		{"Recipient (name)", pc.Meta.Recipient.Name, ""},
