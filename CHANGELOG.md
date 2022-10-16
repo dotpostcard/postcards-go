@@ -1,3 +1,9 @@
+## 0.8.0 (2022-10-16)
+
+### Feat
+
+- Allow providing/overriding physical size
+
 ## 0.7.0 (2022-10-16)
 
 ### Feat
