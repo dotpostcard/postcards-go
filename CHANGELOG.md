@@ -1,3 +1,9 @@
+## 0.7.0 (2022-10-16)
+
+### Feat
+
+- Name location sent from
+
 ## 0.6.0 (2022-10-15)
 
 ### Feat
