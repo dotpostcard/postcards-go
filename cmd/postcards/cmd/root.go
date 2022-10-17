@@ -14,9 +14,12 @@ var rootCmd = &cobra.Command{
 	Version: postcards.Version.String(),
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	rootCmd.PersistentFlags().Bool("here", false, "Output files in the current working directory")
+	rootCmd.PersistentFlags().Bool("there", true, "Output files in the same directory as the source data")
+	rootCmd.PersistentFlags().String("outdir", "", "Output files to the given directory")
+	rootCmd.MarkFlagsMutuallyExclusive("here", "there", "outdir")
+
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)

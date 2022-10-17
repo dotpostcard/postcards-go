@@ -1,0 +1,38 @@
+# Created with postcards v{{.Version}} - https://dotpostcard.org
+# Dimensions are in metres
+
+mtllib {{.FileMaterial}}
+shadow_obj {{.FileObject}}
+
+v  0 {{.HeightM}} {{.ThickM}}
+v  0 0 {{.ThickM}}
+v  {{.WidthM}} 0 {{.ThickM}}
+v  {{.WidthM}} {{.HeightM}} {{.ThickM}}
+v  0 {{.HeightM}} 0
+v  0 0 0
+v  {{.WidthM}} 0 0
+v  {{.WidthM}} {{.HeightM}} 0
+
+vt 1 1
+vt 1 0
+vt 0 0
+vt 0 1
+
+vt 0 1
+vt 0 0
+vt 1 0
+vt 1 1
+
+g Front
+usemtl front
+f 1/5 2/6 3/7 4/8
+
+g Back
+usemtl back
+f 8/{{ vtFlip 0 .Flip }} 7/{{ vtFlip 1 .Flip }} 6/{{ vtFlip 2 .Flip }} 5/{{ vtFlip 3 .Flip }}
+
+usemtl paper
+f 5 6 2 1
+f 4 3 7 8
+f 5 1 4 8
+f 2 6 7 3
