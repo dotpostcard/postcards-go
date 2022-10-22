@@ -1,3 +1,9 @@
+## 0.9.1 (2022-10-22)
+
+### Fix
+
+- Missing 3d command because gitignore
+
 ## 0.9.0 (2022-10-22)
 
 ### Feat
