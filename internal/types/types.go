@@ -30,14 +30,14 @@ func (l Location) String() string {
 type Polygon []Point
 
 type Side struct {
-	Description   LocalizedText `json:"description,omitempty"`
-	Transcription LocalizedText `json:"transcription,omitempty"`
-	Secrets       []Polygon     `json:"secrets,omitempty"`
+	Description   string    `json:"description,omitempty"`
+	Transcription string    `json:"transcription,omitempty"`
+	Secrets       []Polygon `json:"secrets,omitempty"`
 }
 
 type Context struct {
-	Author      Person        `json:"author"`
-	Description LocalizedText `json:"description"`
+	Author      Person `json:"author"`
+	Description string `json:"description"`
 }
 
 type Person struct {
@@ -54,6 +54,7 @@ func (p Person) String() string {
 }
 
 type Metadata struct {
+	Locale          string   `json:"locale"`
 	Location        Location `json:"location,omitempty"`
 	Flip            Flip     `json:"flip" yaml:"flip"`
 	SentOn          Date     `json:"sentOn,omitempty" yaml:"sent_on"`

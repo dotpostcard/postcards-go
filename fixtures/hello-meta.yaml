@@ -1,3 +1,4 @@
+locale: en-GB
 location:
   name: Palacio de Cristal, Retiro Park, Madrid, Spain
   latitude: 40.41365195362523
@@ -10,19 +11,15 @@ recipient:
   link: https://github.com/dotpostcard/postcards-go
 flip: book
 front:
-  description:
-    en-GB: A polaroid-style framed photo of the Palacio de Cristal in Madrid's Retiro Park in Autumn.
+  description: A polaroid-style framed photo of the Palacio de Cristal in Madrid's Retiro Park in Autumn.
 back:
-  description:
-    en-GB: A plain postcard back. Text at the top left declares this postcard 0033 of Madrid, "Parque del Retiro". Text at the bottom explains artwork is by Hans Löhr.
-  transcription:
-    original: en-GB
-    en-GB: |
-      Hello world!
+  description: A plain postcard back. Text at the top left declares this postcard 0033 of Madrid, "Parque del Retiro". Text at the bottom explains artwork is by Hans Löhr.
+  transcription: |
+    Hello world!
 
-      I hope you like this postcard from Madrid!
+    I hope you like this postcard from <span lang="es-ES">Madrid</span>!
 
-      x JP
+    x JP
   secrets:
     - type: box
       # Percentages of width or height of postcard, as appropriate
@@ -34,6 +31,5 @@ back:
 context:
   author:
     name: JP
-    link: https://byJP.me
-  description:
-    en-GB: This is a postcard I wrote, but never sent, as a fixture to use for the software repository at https://github.com/dotpostcard/postcards-go.
+    link: https://www.byJP.me
+  description: This is a postcard I wrote, but never sent, as a fixture to use for the software repository at https://github.com/dotpostcard/postcards-go.

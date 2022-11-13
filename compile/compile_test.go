@@ -32,7 +32,7 @@ func ExampleFiles() {
 	}
 
 	fmt.Printf("%s has checksum %x", filename, hashOfPostcardInnards(data))
-	// Output: hello.postcard has checksum 37643c08a2115e4fff0699c9e8cd290d
+	// Output: hello.postcard has checksum ecb741d69f14bd70aaa3f02436e5ea49
 }
 
 func checkBadSetup(t *testing.T, err error) {
@@ -61,6 +61,7 @@ func TestReaders(t *testing.T) {
 		actual   interface{}
 		expected interface{}
 	}{
+		{"Locale", pc.Meta.Locale, "en-GB"},
 		{"Location name", pc.Meta.Location.Name, "Palacio de Cristal, Retiro Park, Madrid, Spain"},
 		{"Location latitude", *pc.Meta.Location.Latitude, float64(40.41365195362523)},
 		{"Location longitude", *pc.Meta.Location.Longitude, float64(-3.6818597177370997)},
@@ -70,13 +71,12 @@ func TestReaders(t *testing.T) {
 		{"Recipient (uri)", pc.Meta.Recipient.Uri, "https://github.com/dotpostcard/postcards-go"},
 		{"Pivot axis", pc.Meta.Flip, types.FlipBook},
 		{"Sent date", pc.Meta.SentOn, types.Date("2022-09-21")},
-		{"Front description", pc.Meta.Front.Description["en-GB"], "A polaroid-style framed photo of the Palacio de Cristal in Madrid's Retiro Park in Autumn."},
-		{"Back description", pc.Meta.Back.Description["en-GB"], `A plain postcard back. Text at the top left declares this postcard 0033 of Madrid, "Parque del Retiro". Text at the bottom explains artwork is by Hans Löhr.`},
-		{"Back transcription (original)", pc.Meta.Back.Transcription["original"], "en-GB"},
-		{"Back transcription", pc.Meta.Back.Transcription["en-GB"], "Hello world!\n\nI hope you like this postcard from Madrid!\n\nx JP\n"},
+		{"Front description", pc.Meta.Front.Description, "A polaroid-style framed photo of the Palacio de Cristal in Madrid's Retiro Park in Autumn."},
+		{"Back description", pc.Meta.Back.Description, `A plain postcard back. Text at the top left declares this postcard 0033 of Madrid, "Parque del Retiro". Text at the bottom explains artwork is by Hans Löhr.`},
+		{"Back transcription", pc.Meta.Back.Transcription, "Hello world!\n\nI hope you like this postcard from <span lang=\"es-ES\">Madrid</span>!\n\nx JP\n"},
 		{"First commentary author (name)", pc.Meta.Context.Author.Name, "JP"},
-		{"First commentary author (url)", pc.Meta.Context.Author.Uri, "https://byJP.me"},
-		{"First commentary description", pc.Meta.Context.Description["en-GB"], "This is a postcard I wrote, but never sent, as a fixture to use for the software repository at https://github.com/dotpostcard/postcards-go."},
+		{"First commentary author (url)", pc.Meta.Context.Author.Uri, "https://www.byJP.me"},
+		{"First commentary description", pc.Meta.Context.Description, "This is a postcard I wrote, but never sent, as a fixture to use for the software repository at https://github.com/dotpostcard/postcards-go."},
 	}
 	for _, check := range checks {
 		if check.actual != check.expected {
