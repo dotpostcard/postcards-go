@@ -1,3 +1,9 @@
+## 0.10.0 (2022-11-13)
+
+### Feat
+
+- Migrate to wide locale-specific context
+
 ## 0.9.1 (2022-10-22)
 
 ### Fix
