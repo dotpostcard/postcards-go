@@ -17,15 +17,13 @@ The package at the root of this repo handles the 'steady state' interaction with
 
 ## File format notes
 
-A `.postcard` file is a 4 part file with the following parts. The first is fixed length, the others start with a uint32 describing their length. All integers are big endian.
+A `.postcard` file contains 4 sections, organised to provide maximum compatibility with web-browsers:
 
-1. The string `postcard`, followed by three uint8 bytes representing the `X.Y.Z` of the version number of the library that created the postcard (in that order).
-2. (a uint32 defining the length of this section and) JSON for the postcard metadata (see `types.go` for spec)
-3. (a uint32 defining the length of this section and) a WebP image file representing the front of the postcard.
-  - Ideally with a transparent background
+1. A WebP image file representing the front of the postcard, placed at the beginning of the file, so application sunable to read a `.postcard` file can process it as a standard WebP file.
+  - Ideally with a transparent background, if any non-postcard pixels are included.
     - Hopefully the `postcarder` tool will one day help with auto-removal of the background of scanned postcards
-4. (a uint32 defining the length of this section and) a WebP image for the back of the postcard (identical in format to 3)
+2. The string `postcard`, followed by three uint8 bytes representing the `X.Y.Z` of the version number of the library that created the postcard (in that order).
+3. (a uint32 defining the length of this section and) JSON for the postcard metadata (see `types.go` for spec)
+4. A WebP image for the back of the postcard (identical in format to 1)
   - The physical dimensions should be within 1% of physical dimensions of the front of the postcard. This allows for different resolutions on front & back
   - Ideally co-registered, so flipping about the verical or horizontal axis (for homoriented postcards) or about one of the diagonal axes (for heteroriented postcards) have the same or extremely similar outlines
-
-The ordering of these chunks is set so version and metadata can be assessed early as larger postcard files are being streamed.
