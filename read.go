@@ -1,6 +1,8 @@
 package postcards
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -20,6 +22,13 @@ var (
 // Read will parse a Postcard struct from a Reader
 func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 	pc := &types.Postcard{}
+
+	// TODO: Skip ahead if metaOnly is true
+	frontBytes, err := readImage(r)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read front image: %v", err)
+	}
+	pc.Front = frontBytes
 
 	if !hasMagicBytes(r) {
 		return nil, fmt.Errorf("not valid postcard file")
@@ -47,12 +56,6 @@ func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 	if metaOnly {
 		return pc, nil
 	}
-
-	frontBytes, err := readImage(r)
-	if err != nil {
-		return nil, fmt.Errorf("unable to read front image: %v", err)
-	}
-	pc.Front = frontBytes
 
 	backBytes, err := readImage(r)
 	if err != nil {
@@ -127,10 +130,33 @@ func readMeta(r io.Reader) (types.Metadata, error) {
 }
 
 func readImage(r io.Reader) ([]byte, error) {
-	size, err := readSize(r)
+	var header bytes.Buffer
+	t := io.TeeReader(r, &header)
+
+	fourByte := make([]byte, 4)
+	if _, err := t.Read(fourByte); err != nil {
+		return nil, err
+	}
+	if string(fourByte) != "RIFF" {
+		return nil, fmt.Errorf("not valid postcard file, expected WebP image")
+	}
+
+	if _, err := r.Read(fourByte); err != nil {
+		return nil, err
+	}
+	webpSize := binary.LittleEndian.Uint32(fourByte)
+
+	if _, err := t.Read(fourByte); err != nil {
+		return nil, err
+	}
+	if string(fourByte) != "WEBP" {
+		return nil, fmt.Errorf("not valid postcard file, expected WebP image")
+	}
+
+	rest, err := io.ReadAll(&io.LimitedReader{R: r, N: int64(webpSize - 4)})
 	if err != nil {
 		return nil, err
 	}
 
-	return io.ReadAll(&io.LimitedReader{R: r, N: int64(size)})
+	return append(header.Bytes(), rest...), nil
 }
