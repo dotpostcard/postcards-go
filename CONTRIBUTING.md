@@ -6,7 +6,6 @@ This repo uses [`commitlint`](https://github.com/conventionalcommit/commitlint) 
 
 ```bash
 go install github.com/conventionalcommit/commitlint@latest
-commitlint init
 ```
 
 ## Builds & release

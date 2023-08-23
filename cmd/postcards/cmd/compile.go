@@ -20,9 +20,18 @@ var compileCmd = &cobra.Command{
 			return fmt.Errorf("unknown file path: %w", err)
 		}
 
-		filename, data, err := compile.Files(path)
+		override, err := cmd.Flags().GetBool("override")
+		if err != nil {
+			override = false
+		}
+
+		filename, data, err := compile.Files(path, !override)
 		if err != nil {
 			return err
+		}
+
+		if data == nil {
+			fmt.Printf("Postcard already exists, skipping: %s\n", filename)
 		}
 
 		fmt.Printf("Writing postcard file to %s\n", filename)
@@ -31,5 +40,6 @@ var compileCmd = &cobra.Command{
 }
 
 func init() {
+	compileCmd.Flags().Bool("override", false, "overrides output files")
 	rootCmd.AddCommand(compileCmd)
 }
