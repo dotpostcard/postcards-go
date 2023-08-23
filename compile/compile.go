@@ -23,13 +23,22 @@ import (
 var nameRegex = regexp.MustCompile(`(.+)-(?:front|back|meta)+\.[a-z]+`)
 
 // Files accepts a path to one of the three needed files, attempts to find the others, and provides the conventional name and bytes for the file.
-func Files(part string) (string, []byte, error) {
+func Files(part string, skipIfPresent bool) (string, []byte, error) {
 	dir := filepath.Dir(part)
 	parts := nameRegex.FindStringSubmatch(filepath.Base(part))
 	if len(parts) != 2 {
 		return "", nil, fmt.Errorf("given filename not of the form *-{front,back,meta}.ext")
 	}
 	prefix := parts[1]
+	outputFilename := fmt.Sprintf("%s.postcard", prefix)
+
+	exists, err := fileExists(outputFilename)
+	if err != nil {
+		return outputFilename, nil, nil
+	}
+	if skipIfPresent && exists {
+		return outputFilename, nil, fmt.Errorf("output file already exists: %s", outputFilename)
+	}
 
 	metaRaw, metaExt, err := openVagueFilename(dir, prefix, "meta", "json", "yml", "yaml")
 	if err != nil {
@@ -59,7 +68,20 @@ func Files(part string) (string, []byte, error) {
 		return "", nil, err
 	}
 
-	return fmt.Sprintf("%s.postcard", prefix), buf.Bytes(), nil
+	return outputFilename, buf.Bytes(), nil
+}
+
+func fileExists(filename string) (bool, error) {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	if info.IsDir() {
+		return true, fmt.Errorf("file %s is a directory", filename)
+	}
+	return true, nil
 }
 
 // Readers accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.

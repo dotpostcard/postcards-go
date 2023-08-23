@@ -26,7 +26,7 @@ func hashOfPostcardInnards(data []byte) [16]byte {
 }
 
 func ExampleFiles() {
-	filename, data, err := compile.Files("../fixtures/hello-meta.yaml")
+	filename, data, err := compile.Files("../fixtures/hello-meta.yaml", false)
 	if err != nil {
 		panic(err)
 	}
