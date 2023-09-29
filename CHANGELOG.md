@@ -1,3 +1,9 @@
+## 0.11.1 (2023-09-29)
+
+### Fix
+
+- **cli**: Fix accidental removal of webp size frame
+
 ## 0.11.0 (2023-09-05)
 
 ### Feat
