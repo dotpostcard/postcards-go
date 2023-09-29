@@ -23,7 +23,6 @@ var (
 func Read(r io.Reader, metaOnly bool) (*types.Postcard, error) {
 	pc := &types.Postcard{}
 
-	// TODO: Skip ahead if metaOnly is true
 	frontBytes, err := readImage(r)
 	if err != nil {
 		return nil, fmt.Errorf("unable to read front image: %v", err)
@@ -141,7 +140,7 @@ func readImage(r io.Reader) ([]byte, error) {
 		return nil, fmt.Errorf("not valid postcard file, expected WebP image")
 	}
 
-	if _, err := r.Read(fourByte); err != nil {
+	if _, err := t.Read(fourByte); err != nil {
 		return nil, err
 	}
 	webpSize := binary.LittleEndian.Uint32(fourByte)
