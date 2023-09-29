@@ -7,4 +7,4 @@ import (
 )
 
 // Version is the semantic version of this reference implementation of postcard file format reading and writing
-var Version = types.MustParseVersion("0.10.0")
+var Version = types.MustParseVersion("0.11.0")
