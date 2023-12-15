@@ -1,3 +1,9 @@
+## 0.12.0 (2023-12-15)
+
+### Feat
+
+- **compiler**: :globe_with_meridians: Add web compilation option
+
 ## 0.11.1 (2023-09-29)
 
 ### Fix
