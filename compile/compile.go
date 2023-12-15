@@ -23,91 +23,110 @@ import (
 var nameRegex = regexp.MustCompile(`(.+)-(?:front|back|meta)+\.[a-z]+`)
 
 // Files accepts a path to one of the three needed files, attempts to find the others, and provides the conventional name and bytes for the file.
-func Files(part string, skipIfPresent bool) (string, []byte, error) {
+func Files(part string, skipIfPresent bool, webFormat bool) ([]string, [][]byte, error) {
 	dir := filepath.Dir(part)
 	parts := nameRegex.FindStringSubmatch(filepath.Base(part))
 	if len(parts) != 2 {
-		return "", nil, fmt.Errorf("given filename not of the form *-{front,back,meta}.ext")
+		return nil, nil, fmt.Errorf("given filename not of the form *-{front,back,meta}.ext")
 	}
 	prefix := parts[1]
-	outputFilename := fmt.Sprintf("%s.postcard", prefix)
+	var outputFilenames []string
+	if webFormat {
+		outputFilenames = []string{
+			fmt.Sprintf("%s.webp", prefix),
+			fmt.Sprintf("%s.md", prefix),
+		}
+	} else {
+		outputFilenames = []string{fmt.Sprintf("%s.postcard", prefix)}
+	}
 
-	exists, err := fileExists(outputFilename)
+	exists, err := anyFilesExist(outputFilenames...)
 	if err != nil {
-		return outputFilename, nil, nil
+		return outputFilenames, nil, nil
 	}
 	if skipIfPresent && exists {
-		return outputFilename, nil, fmt.Errorf("output file already exists: %s", outputFilename)
+		return outputFilenames, nil, fmt.Errorf("output file already exists: %s", strings.Join(outputFilenames, ", "))
 	}
 
 	metaRaw, metaExt, err := openVagueFilename(dir, prefix, "meta", "json", "yml", "yaml")
 	if err != nil {
-		return "", nil, fmt.Errorf("couldn't load metadata: %w", err)
+		return nil, nil, fmt.Errorf("couldn't load metadata: %w", err)
 	}
 	meta, err := metaReader(metaRaw, metaExt)
 	if err != nil {
-		return "", nil, fmt.Errorf("couldn't parse metadata: %w", err)
+		return nil, nil, fmt.Errorf("couldn't parse metadata: %w", err)
 	}
 
 	front, _, err := openVagueFilename(dir, prefix, "front", "png", "jpg", "tif", "tiff")
 	if err != nil {
-		return "", nil, fmt.Errorf("couldn't load postcard front: %w", err)
+		return nil, nil, fmt.Errorf("couldn't load postcard front: %w", err)
 	}
 	back, _, err := openVagueFilename(dir, prefix, "back", "png", "jpg", "tif", "tiff")
 	if err != nil {
-		return "", nil, fmt.Errorf("couldn't load postcard back: %w", err)
+		return nil, nil, fmt.Errorf("couldn't load postcard back: %w", err)
 	}
 
-	pc, err := Readers(front, back, meta)
-	if err != nil {
-		return "", nil, err
-	}
+	if webFormat {
+		img, md, err := CompileWeb(front, back, meta)
+		if err != nil {
+			return nil, nil, err
+		}
 
-	buf := new(bytes.Buffer)
-	if err := postcards.Write(pc, buf); err != nil {
-		return "", nil, err
-	}
+		return outputFilenames, [][]byte{img, md}, nil
+	} else {
+		pc, err := Readers(front, back, meta)
+		if err != nil {
+			return nil, nil, err
+		}
 
-	return outputFilename, buf.Bytes(), nil
+		buf := new(bytes.Buffer)
+		if err := postcards.Write(pc, buf); err != nil {
+			return nil, nil, err
+		}
+
+		return outputFilenames, [][]byte{buf.Bytes()}, nil
+	}
 }
 
-func fileExists(filename string) (bool, error) {
-	info, err := os.Stat(filename)
-	if os.IsNotExist(err) {
-		return false, nil
-	} else if err != nil {
-		return false, err
+func anyFilesExist(filenames ...string) (bool, error) {
+	for _, filename := range filenames {
+		info, err := os.Stat(filename)
+		if os.IsNotExist(err) {
+			continue
+		} else if err != nil {
+			return false, err
+		}
+		if info.IsDir() {
+			return true, fmt.Errorf("file %s is a directory", filename)
+		}
+		return true, nil
 	}
-	if info.IsDir() {
-		return true, fmt.Errorf("file %s is a directory", filename)
-	}
-	return true, nil
+	return false, nil
 }
 
-// Readers accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
-func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Postcard, error) {
+func processImages(frontReader, backReader io.Reader, mp MetadataProvider) (image.Image, image.Image, types.Size, types.Size, types.Metadata, error) {
 	meta, err := mp.Metadata()
 	if err != nil {
-		return nil, fmt.Errorf("unable to obtain the metadata: %w", err)
+		return nil, nil, types.Size{}, types.Size{}, types.Metadata{}, fmt.Errorf("unable to obtain the metadata: %w", err)
 	}
 
 	if err := validateMetadata(meta); err != nil {
-		return nil, fmt.Errorf("metadata invalid: %w", err)
+		return nil, nil, types.Size{}, types.Size{}, types.Metadata{}, fmt.Errorf("metadata invalid: %w", err)
 	}
 
 	frontRaw, frontDims, err := readerToImage(frontReader)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse image for front image: %w", err)
+		return nil, nil, types.Size{}, types.Size{}, types.Metadata{}, fmt.Errorf("unable to parse image for front image: %w", err)
 	}
 	backRaw, backDims, err := readerToImage(backReader)
 	if err != nil {
-		return nil, fmt.Errorf("unable to parse image for back image: %w", err)
+		return nil, nil, types.Size{}, types.Size{}, types.Metadata{}, fmt.Errorf("unable to parse image for back image: %w", err)
 	}
 
 	meta.FrontDimensions = bestFrontDimensions(meta.FrontDimensions, frontDims, backDims, meta.Flip.Heteroriented())
 
 	if err := validate.Dimensions(&meta, frontRaw.Bounds(), backRaw.Bounds(), frontDims, backDims); err != nil {
-		return nil, err
+		return nil, nil, types.Size{}, types.Size{}, types.Metadata{}, err
 	}
 	if isOversized(frontDims) {
 		log.Printf("WARNING! This postcard is very large (%s), do the images have the correct ppi/ppcm?\n", frontDims)
@@ -115,11 +134,21 @@ func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Pos
 
 	frontImg, err := hideSecrets(frontRaw, meta.Front.Secrets)
 	if err != nil {
-		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard front: %w", err)
+		return nil, nil, types.Size{}, types.Size{}, types.Metadata{}, fmt.Errorf("unable to hide the secret areas specified on the postcard front: %w", err)
 	}
 	backImg, err := hideSecrets(backRaw, meta.Back.Secrets)
 	if err != nil {
-		return nil, fmt.Errorf("unable to hide the secret areas specified on the postcard back: %w", err)
+		return nil, nil, types.Size{}, types.Size{}, types.Metadata{}, fmt.Errorf("unable to hide the secret areas specified on the postcard back: %w", err)
+	}
+
+	return frontImg, backImg, frontDims, backDims, meta, nil
+}
+
+// Readers accepts reader objects for each of the components of a postcard file, and creates an in-memory Postcard object.
+func Readers(frontReader, backReader io.Reader, mp MetadataProvider) (*types.Postcard, error) {
+	frontImg, backImg, frontDims, backDims, meta, err := processImages(frontReader, backReader, mp)
+	if err != nil {
+		return nil, err
 	}
 
 	frontWebp, err := encodeWebp(frontImg, frontDims)

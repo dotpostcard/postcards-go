@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/dotpostcard/postcards-go"
@@ -14,14 +15,18 @@ var rootCmd = &cobra.Command{
 	Version: postcards.Version.String(),
 }
 
+func checkErr(err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
 func Execute() {
 	rootCmd.PersistentFlags().Bool("here", false, "Output files in the current working directory")
 	rootCmd.PersistentFlags().Bool("there", true, "Output files in the same directory as the source data")
 	rootCmd.PersistentFlags().String("outdir", "", "Output files to the given directory")
 	rootCmd.MarkFlagsMutuallyExclusive("here", "there", "outdir")
 
-	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
-	}
+	checkErr(rootCmd.Execute())
 }

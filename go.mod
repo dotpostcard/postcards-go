@@ -15,6 +15,7 @@ require (
 	github.com/dsoprea/go-utility v0.0.0-20200711062821-fab8125e9bdf // indirect
 	github.com/go-errors/errors v1.1.1 // indirect
 	github.com/golang/geo v0.0.0-20200319012246-673a6f80352d // indirect
+	github.com/stretchr/testify v1.7.1 // indirect
 	golang.org/x/net v0.0.0-20220624214902-1bab6f366d9e // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

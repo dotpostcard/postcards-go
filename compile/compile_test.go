@@ -25,14 +25,28 @@ func hashOfPostcardInnards(data []byte) [16]byte {
 	return md5.Sum(data)
 }
 
-func ExampleFiles() {
-	filename, data, err := compile.Files("../fixtures/hello-meta.yaml", false)
+func ExampleFiles_postcard() {
+	filenames, datas, err := compile.Files("../fixtures/hello-meta.yaml", false, false)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Printf("%s has checksum %x", filename, hashOfPostcardInnards(data))
-	// Output: hello.postcard has checksum ecb741d69f14bd70aaa3f02436e5ea49
+	fmt.Printf("(%d file) %s has checksum %x", len(filenames), filenames[0], hashOfPostcardInnards(datas[0]))
+	// Output: (1 file) hello.postcard has checksum 659a65db02a600f70d3bf0b438d10297
+}
+
+func ExampleFiles_web() {
+	filenames, datas, err := compile.Files("../fixtures/hello-meta.yaml", false, true)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("(%d files) %s has checksum %x, %s has checksum %x",
+		len(filenames),
+		filenames[0], hashOfPostcardInnards(datas[0]),
+		filenames[1], hashOfPostcardInnards(datas[1]),
+	)
+	// Output: (2 files) hello.webp has checksum c085551191a9bf20e65392ed239d990e, hello.md has checksum 47ab2ccda9585222cc0625f5298e12c7
 }
 
 func checkBadSetup(t *testing.T, err error) {
