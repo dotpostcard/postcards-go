@@ -21,7 +21,7 @@ builds:
     flags:
       - -mod=readonly
     ldflags:
-      - -s -w
+      - -s -w -extldflags=-static
   - id: mac-intel
     main: ./cmd/postcards
     binary: postcards
