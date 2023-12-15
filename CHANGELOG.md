@@ -1,3 +1,9 @@
+## 0.12.1 (2023-12-15)
+
+### Fix
+
+- **cli**: Statically compile the CLI
+
 ## 0.12.0 (2023-12-15)
 
 ### Feat
