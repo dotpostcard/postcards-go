@@ -46,7 +46,7 @@ var compileCmd = &cobra.Command{
 			fmt.Printf("Postcard files already exist, skipping: %s\n", strings.Join(filenames, ", "))
 		}
 
-		fmt.Println("Writing postcard files…")
+		fmt.Printf("Writing postcard files to %s\n", outdir)
 		for i, filename := range filenames {
 			if err := os.WriteFile(filepath.Join(outdir, filename), datas[i], 0600); err != nil {
 				return fmt.Errorf("unable to write file %s: %w", filename, err)

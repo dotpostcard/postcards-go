@@ -31,7 +31,7 @@ func Files(part string, skipIfPresent bool, webFormat bool) ([]string, [][]byte,
 	if webFormat {
 		outputFilenames = []string{
 			fmt.Sprintf("%s.webp", prefix),
-			fmt.Sprintf("%s.md", prefix),
+			fmt.Sprintf("%s.json", prefix),
 		}
 	} else {
 		outputFilenames = []string{fmt.Sprintf("%s.postcard", prefix)}

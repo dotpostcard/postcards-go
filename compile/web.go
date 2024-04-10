@@ -3,45 +3,59 @@ package compile
 import (
 	"bytes"
 	_ "embed"
+	"encoding/json"
 	"image"
-	"image/draw"
 	"io"
 	"math/big"
-	"text/template"
 
 	"github.com/dotpostcard/postcards-go/internal/types"
+	"golang.org/x/image/draw"
 )
 
-//go:embed web.md.tmpl
-var webTemplateStr string
-var webTemplate = template.Must(template.New("web").Parse(webTemplateStr))
+const maxSize = 2048
 
-func CompileWeb(front, back io.Reader, mp MetadataProvider) (imgBytes []byte, mdBytes []byte, err error) {
+func CompileWeb(front, back io.Reader, mp MetadataProvider) (imgBytes []byte, jsonBytes []byte, err error) {
 	frontImg, backImg, frontDims, _, meta, err := processImages(front, back, mp)
 	if err != nil {
 		return nil, nil, err
 	}
 
+	scaleW := float64(frontDims.PxWidth) / float64(maxSize)
+	scaleH := float64(frontDims.PxHeight) / float64(maxSize)
+	scale := float64(1)
+	if scaleW > scale {
+		scale = scaleW
+	}
+	if scaleH > scale {
+		scale = scaleH
+	}
+
+	newW := int(float64(frontDims.PxWidth) / scale)
+	newH := int(float64(frontDims.PxHeight) / scale)
+
 	combinedDims := types.Size{
-		PxWidth:  frontDims.PxWidth,
-		PxHeight: frontDims.PxHeight * 2,
+		PxWidth:  newW,
+		PxHeight: newH * 2,
 		CmWidth:  frontDims.CmWidth,
 		CmHeight: frontDims.CmHeight.Mul(frontDims.CmHeight, big.NewRat(2, 1)),
 	}
 
-	frontBounds := frontImg.Bounds()
+	frontBounds := image.Rectangle{
+		Min: image.Point{0, 0},
+		Max: image.Point{newW, newH},
+	}
 	backBounds := image.Rectangle{
-		Min: image.Point{0, frontDims.PxHeight},
-		Max: image.Point{frontDims.PxWidth, combinedDims.PxHeight},
+		Min: image.Point{0, newH},
+		Max: image.Point{newW, newH * 2},
 	}
 
 	combinedImg := image.NewRGBA(image.Rect(0, 0, combinedDims.PxWidth, combinedDims.PxHeight))
-	draw.Draw(combinedImg, frontBounds, frontImg, image.Point{}, draw.Src)
+	draw.CatmullRom.Scale(combinedImg, frontBounds, frontImg, frontImg.Bounds(), draw.Src, nil)
 
 	if meta.Flip == types.FlipLeftHand || meta.Flip == types.FlipRightHand {
 		backImg = rotateImage(backImg, meta.Flip)
 	}
-	draw.Draw(combinedImg, backBounds, backImg, image.Point{}, draw.Src)
+	draw.CatmullRom.Scale(combinedImg, backBounds, backImg, backImg.Bounds(), draw.Src, nil)
 
 	combined, err := encodeWebp(combinedImg, combinedDims)
 	if err != nil {
@@ -49,7 +63,7 @@ func CompileWeb(front, back io.Reader, mp MetadataProvider) (imgBytes []byte, md
 	}
 
 	buf := new(bytes.Buffer)
-	if err := webTemplate.Execute(buf, meta); err != nil {
+	if err := json.NewEncoder(buf).Encode(meta); err != nil {
 		return nil, nil, err
 	}
 
