@@ -1,6 +1,7 @@
 package cmdhelp
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,7 +16,11 @@ func Outdir(cmd *cobra.Command, therePath string) (string, error) {
 	}
 	if outdir != "" {
 		// Only error if outdir is a regular file (ie. allow existing and non-existing directories)
-		if fi, err := os.Stat(outdir); (err != os.ErrNotExist || err == nil) && !fi.IsDir() {
+		fi, err := os.Stat(outdir)
+		if err != nil && !errors.Is(err, os.ErrNotExist) {
+			return "", err
+		}
+		if !fi.IsDir() {
 			return "", fmt.Errorf("outdir %s is a regular file", outdir)
 		}
 		return outdir, os.MkdirAll(outdir, 0700)
