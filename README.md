@@ -1,3 +1,7 @@
+# Archival
+
+My plans for the .postcard format changed significantly in ealry 2024; please visit [jphastings/dotpostcard](https://github.com/jphastings/dotpostcard) to learn about the significantly simpler tool & ecosystem I switched to building!
+
 # Postcard
 
 A **work in progress** CLI & library for interacting with `.postcard` files, and the current reference implementation of the structure of this filetype.
